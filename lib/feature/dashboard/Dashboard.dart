@@ -19,7 +19,7 @@ List<Widget>listNavigationItems=[
   ProductsNav(),
   ProfileNav()
 ];
-  var _currentIndex=1;
+  var _currentIndex=0;
 
 @override
 void initState() {
@@ -33,40 +33,48 @@ void initState() {
 
     return Scaffold(
       bottomNavigationBar: getBottomNavigation(),
-      body: listNavigationItems[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: listNavigationItems,
+      ),
     );
      }
 
   getBottomNavigation() {
     return Container(
-      height: 70,
-      width: MediaQuery.of(context).size.width,
+      margin: EdgeInsets.only(left: 10,right: 10,bottom: 10),
       child: BottomNavigationBar(
         backgroundColor: ColorResources.primaryColor,
-        unselectedLabelStyle: TextStyle(color: Colors.orange),
-        unselectedItemColor: Colors.black87.withOpacity(0.7),
+        unselectedItemColor: Colors.black45,
+        elevation: 10,
+        selectedLabelStyle: GoogleFonts.poppins(fontSize: 12,color: Colors.black54,fontWeight: FontWeight.w500),
+
         currentIndex: _currentIndex,
         onTap: onTapBottomNav,
-        selectedItemColor: Colors.white,
+        selectedItemColor: Colors.black87,
         type: BottomNavigationBarType.fixed,
-        items: [
+        items: const [
           BottomNavigationBarItem(
               icon: Icon(
                 Icons.home,
               ),
-              label:'Home'),
+              label:'Home',),
+
           BottomNavigationBarItem(
               icon: Icon(Icons.card_travel_sharp),
               label: 'Orders'
           ),
           BottomNavigationBarItem(
               icon: Icon(Icons.food_bank),
-                label: 'Products'
-                ), BottomNavigationBarItem(
+              label: 'Products'
+          ), BottomNavigationBarItem(
               icon: Icon(Icons.account_circle_sharp),
               label: 'Profile'
           ),
         ],
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(50))
       ),
     );
   }
