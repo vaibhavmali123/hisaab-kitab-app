@@ -6,7 +6,10 @@ class StringResources
   static String loginText="Login";
   static String forgotPassword="Forgot password?";
   static String addProducts="Add products";
-static String enterProductNameField="Enter product name";
+  static String entercategoryNameField="Enter category name";
+  static String entersubcategoryNameField="Enter Subcategory name";
+
+  static String enterProductNameField="Enter product name";
   static String enterProductQTYField="Enter product quantity";
   static String enterProductPriceField="Enter product price";
 }

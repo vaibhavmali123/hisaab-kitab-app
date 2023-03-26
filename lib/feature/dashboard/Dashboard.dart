@@ -7,6 +7,9 @@ import 'package:hisab_kitab/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 
+import '../category/AddCategoryScreen.dart';
+import '../subcategory/AddSubcategoryScreen.dart';
+
 class Dashboard extends StatefulWidget{
 
   State<Dashboard> createState()=>DashboardState();
@@ -33,6 +36,7 @@ void initState() {
 
     return Scaffold(
       bottomNavigationBar: getBottomNavigation(),
+      drawer: getDrawer(),
       body: IndexedStack(
         index: _currentIndex,
         children: listNavigationItems,
@@ -90,5 +94,88 @@ void initState() {
       systemNavigationBarColor: ColorResources.primaryColor, // navigation bar color
       statusBarColor: ColorResources.primaryColor, // status bar color
     ));
+  }
+void navigate(String type) {
+  switch (type) {
+    case "addCat":
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AddCategoryScreen();
+      }));
+      break;
+    case "addSubcat":
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AddSubcategoryScreen();
+      }));
+      break;
+    case "addProduct":
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return ProductsNav();
+      }));
+      break;
+  }
+}
+
+  getDrawer() {
+  return Drawer(
+      child:IntrinsicHeight(
+        child: Container(
+          width: MediaQuery.of(context).size.width/1.8,
+          height:double.maxFinite,
+          //margin: EdgeInsets.only(top: 100),
+          color: Colors.white,
+          child: Column(
+            children: [
+              Container(
+                height: 180,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    color: ColorResources.primaryColor
+                ),
+              ),
+              ExpansionTile(title:Text('Admin') ,children: [
+
+                ExpansionTile(title:Text('Category master'),
+                  children: [
+                    ListTile(title: Text("Add category"),leading: Icon(Icons.add_business_rounded,color: Colors.black87,size: 20,),trailing: Icon(Icons.arrow_forward_ios_rounded,color: Colors.black87,size: 20,),
+                      onTap: (){
+                        navigate("addCat");
+                      },
+                    ),
+
+                    ListTile(title: Text("Update/ delete category"),leading: Icon(Icons.edit_note,color: Colors.black87,size: 20,),trailing: Icon(Icons.arrow_forward_ios_rounded,color: Colors.black87,size: 20,),),
+                  ],
+                ),
+
+                ExpansionTile(title:Text('Subcategory master'),
+                  children: [
+                    ListTile(title: Text("Add Subcategory"),leading: Icon(Icons.add_business_rounded,color: Colors.black87,size: 20,),trailing: Icon(Icons.arrow_forward_ios_rounded,color: Colors.black87,size: 20,),
+                      onTap: (){
+                        navigate("addSubcat");
+                      },
+                    ),
+
+                    ListTile(title: Text("Update/ delete Subcategory"),leading: Icon(Icons.edit_note,color: Colors.black87,size: 20,),trailing: Icon(Icons.arrow_forward_ios_rounded,color: Colors.black87,size: 20,),),
+                  ],
+                ),
+
+                ExpansionTile(title:Text('Products master'),
+                  children: [
+                    ListTile(title: Text("Add products"),leading: Icon(Icons.add_business_rounded,color: Colors.black87,size: 20,),trailing: Icon(Icons.arrow_forward_ios_rounded,color: Colors.black87,size: 20,),
+                      onTap: (){
+                        navigate("addProduct");
+                      },
+                    ),
+
+                    ListTile(title: Text("Update/ delete products"),leading: Icon(Icons.edit_note,color: Colors.black87,size: 20,),trailing: Icon(Icons.arrow_forward_ios_rounded,color: Colors.black87,size: 20,),),
+                  ],
+                ),
+
+
+              ],)
+            ],
+          ),
+        ),
+      )
+  );
   }
 }
