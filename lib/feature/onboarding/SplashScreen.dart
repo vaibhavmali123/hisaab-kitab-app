@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:hisab_kitab/app/views/DashBoard.dart';
 import 'package:hisab_kitab/feature/authentication/LoginScreen.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+import '../dashboard/Dashboard.dart';
 
  class SplashScreen extends StatefulWidget{
 
@@ -34,7 +38,14 @@ class SplashScreenState extends State<SplashScreen>{
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/pos_system.png",height: 180,width: 180,),
+            SvgPicture.asset(
+              "assets/pos_system.svg",
+              height:120,
+              width:120,
+              //color:ColorResources.primaryColor,
+              //colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
+            ),
+            // Image.asset("assets/pos_system.png",height: 180,width: 180,),
           ],
         ),
       ),
@@ -44,6 +55,6 @@ class SplashScreenState extends State<SplashScreen>{
 
 void startTimer(BuildContext context) {
    Timer(Duration(seconds: 2), () {
-     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
+     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Dashboard()));
    });
 }

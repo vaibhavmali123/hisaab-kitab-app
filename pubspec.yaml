@@ -31,9 +31,16 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.2
+  bloc:
   google_fonts:
   flutter_neumorphic:
-
+  http:
+  rxdart:
+  flutter_svg:
+  fluttertoast: ^8.2.1
+  provider:
+  equatable: ^2.0.5
+  dio:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -67,6 +74,7 @@ flutter:
   assets:
   - assets/pos_system.png
   - assets/mbl.png
+  - assets/pos_system.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

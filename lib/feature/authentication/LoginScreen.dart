@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:hisab_kitab/feature/dashboard/Dashboard.dart';
 import 'package:hisab_kitab/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginScreen extends StatefulWidget{
 
@@ -24,33 +25,26 @@ class LoginScreenState extends State<LoginScreen>
   Widget build(BuildContext context) 
   {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Scaffold(
           body: Container(
             height: double.infinity,
             width: double.infinity,
             alignment: Alignment.center,
-            color: Colors.grey.shade100,
+            color: Colors.white,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Column(
                     children: [
-                      Neumorphic(
-                        padding: EdgeInsets.all(13),
-                        style: NeumorphicStyle(
-                            color: ColorResources.primaryColor,
-                            boxShape: NeumorphicBoxShape.roundRect(
-                                BorderRadius.circular(100)
-                                    .copyWith(topRight: Radius.circular(0))),
-                            depth: -3,
-                            lightSource: LightSource.bottomLeft,
-                            intensity: 1,
-                            // oppositeShadowLightSource: true,
-                            shadowLightColorEmboss: Colors.white24),
-                        child:
-                        Image.asset("assets/pos_system.png",height: 180,width: 180,),
+                      SvgPicture.asset(
+                        "assets/pos_system.svg",
+                        height:120,
+                        width:120,
+                        //color:ColorResources.primaryColor,
+                        //colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
                       ),
                       SizedBox(
                         height: 30.0,

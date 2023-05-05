@@ -12,4 +12,6 @@ class StringResources
   static String enterProductNameField="Enter product name";
   static String enterProductQTYField="Enter product quantity";
   static String enterProductPriceField="Enter product price";
+
+  static String categoryAddSuccess="Category added successfully";
 }

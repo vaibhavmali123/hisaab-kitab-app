@@ -45,9 +45,12 @@ List<String>listtabs=[
       title: Text("Hisaab kitab"),
       titleTextStyle: TextStyle(fontWeight: FontWeight.w800,fontSize: 18,color: Colors.black87),
       centerTitle: false,
-      leading: Icon(Icons.menu,color: Colors.black87,),
+      leading: IconButton(onPressed: (){
+        Scaffold.of(context).openDrawer();
+      }, icon: Icon(Icons.menu,color: Colors.black87,)),
       actions: [
         Padding(padding: EdgeInsets.only(right: 12),
+
         child: Icon(Icons.document_scanner_sharp,color: Colors.black54,),)
       ],
       flexibleSpace: FlexibleSpaceBar(
