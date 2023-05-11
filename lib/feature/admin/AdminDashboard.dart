@@ -19,7 +19,8 @@ int currentIndex=0;
   Widget build(BuildContext context)
   {
   return Scaffold(
-    appBar: AppBar(title: Text("Admin Dashboard",style: TextStyle(fontSize: 14,color: Colors.white),),
+    appBar: AppBar(title: Text("Admin Dashboard",style: TextStyle(fontSize: 16,color:ColorResources.title1Color),),
+     leading: IconButton(onPressed:(){Navigator.pop(context);}, icon:Icon(Icons.arrow_back),color: Colors.black87,),
       backgroundColor:ColorResources.primaryColor),
     body: SingleChildScrollView(
       child: Container(
@@ -46,13 +47,14 @@ int currentIndex=0;
                           margin: EdgeInsets.only(left: 4,right: 4),
                           padding: EdgeInsets.all(5),
                           child: Center(
-                            child: Text(menuList[index],style: TextStyle(fontSize: 12,fontWeight: currentIndex!=index?FontWeight.w600:FontWeight.w900,color:currentIndex!=index?Colors.black87:ColorResources.primaryColor),),
+                            child: Text(menuList[index],style: TextStyle(fontSize: 12,fontWeight: currentIndex!=index?FontWeight.w400:FontWeight.w600,color:currentIndex!=index?Colors.black87:Colors.black87),),
                           ),
                           // width: MediaQuery.of(context).size.width/5,
                           height: 35,
                           decoration:BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(width:currentIndex!=index? 1:2,color:currentIndex!=index?Colors.black87:ColorResources.primaryColor)
+                            color: ColorResources.primaryColor,
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(width:currentIndex!=index? 1:2,color:currentIndex!=index?Colors.black87:Colors.cyanAccent)
                           ) ,
                         ),
                       );

@@ -7,4 +7,7 @@ class EndPoint
   static String addSubCategory="addSubCategory";
   static String saveProduct="saveProduct";
   static String getAllCategories="getAllCategories";
+  static String getAllSubCategories="getAllSubCategories";
+  static String getSubCategoriesById="getSubCategoriesById"+"?categoryId=";
+  static String saveOrder="order/1/saveOrder/2";
 }

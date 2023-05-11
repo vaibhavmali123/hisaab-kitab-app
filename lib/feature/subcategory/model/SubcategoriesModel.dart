@@ -26,7 +26,7 @@ class SuubcategoriesModel {
 class ListElemet {
   ListElemet({
     required this.subCategoryId,
-    this.subCategoryName,
+    required this.subCategoryName,
     required this.createdDate,
     required this.sequence,
     required this.category,
@@ -34,7 +34,7 @@ class ListElemet {
     required this.categoryId,
   });
   late final int subCategoryId;
-  late final String? subCategoryName;
+  late final String subCategoryName;
   late final String createdDate;
   late final int sequence;
   late final Category category;
@@ -43,7 +43,7 @@ class ListElemet {
 
   ListElemet.fromJson(Map<String, dynamic> json){
     subCategoryId = json['subCategoryId'];
-    subCategoryName = null;
+    subCategoryName = json['subCategoryName'];
     createdDate = json['createdDate'];
     sequence = json['sequence'];
     category = Category.fromJson(json['category']);

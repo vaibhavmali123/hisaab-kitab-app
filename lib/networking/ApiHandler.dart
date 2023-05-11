@@ -15,6 +15,8 @@ class ApiHandler{
         print("RESPONSE ${response.body.toString()}");
 
         mapResponse = json.decode(response.body);
+        print("RESPONSE 2 ${response.body.toString()}");
+
         return mapResponse;
       }
   return null;

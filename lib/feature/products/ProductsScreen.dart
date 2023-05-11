@@ -13,6 +13,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:hisab_kitab/utils/LoadingNotifier.dart';
 import 'dart:convert';
+import 'package:hisab_kitab/feature/subcategory/bloc/SubcategoriesBloc.dart';
+
 class ProductsScreen extends StatefulWidget
 {
 
@@ -30,7 +32,8 @@ class ProductsScreenState extends State<ProductsScreen>
   List<String> categoryList=["mobile","Cover","charger"];
   List<String> subCategoryList=["mobile","Cover","charger"];
   bool subCategoryField=true;
-
+final subcategoriesBloc=SubcategoriesBloc();
+  
   @override
   void initState() {
     // TODO: implement initState

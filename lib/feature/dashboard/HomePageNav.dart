@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hisab_kitab/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../category/bloc/CategoryBloc.dart';
+import '../category/bloc/CategoryEvent.dart';
+import '../category/bloc/CategoryState.dart';
+import '../category/model/CategoriesModel.dart';
 class HomePageNav extends StatefulWidget{
 
   State<HomePageNav> createState()=>HomePageNavState();
@@ -18,6 +24,14 @@ List<String>listtabs=[
   'parts',
   'Others'
 ];
+  final categoryBloc=CategoryBloc();
+  @override
+  void initState() {
+    // TODO: implement initState
+    categoryBloc.add(GetCategoryListEvent());
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -124,29 +138,69 @@ List<String>listtabs=[
           SizedBox(
             height: 35,
               width: double.infinity,
-              child: ListView.builder(
-              itemCount: listtabs.length,
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              //primary: false,
-              itemBuilder: (context,index){
-                return Padding(padding: EdgeInsets.symmetric(horizontal: 5),
-                child: GestureDetector(
-                  child: Container(
-                    height: 35,
-                    width: 100,
-                    child: Center(
-                      child: Text(listtabs[index],style: GoogleFonts.poppins(fontWeight: FontWeight.w500,color: Colors.black54,fontSize: 13),),
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black45,width: 1),
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                        color: ColorResources.primaryColor
-                    ),
-                  ),
-                ),
-                );
-              })),
+              child:
+              BlocProvider(
+                  create: (_)=>categoryBloc,
+                  child:BlocListener<CategoryBloc, CategoryState>(
+                    listener: (context, state) {
+                      if (state is CategoryError) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.message!),
+                          ),
+                        );
+                      }
+                    },
+                    child:BlocBuilder<CategoryBloc,CategoryState>(builder:(context,state){
+                      if(state is CategoryInitial){
+                        return Center(child: CircularProgressIndicator(),);
+                      }
+                      else if(state is CategoryLoading){
+                        return Center(child: CircularProgressIndicator(),);
+
+                      }
+                      else if(state is CategoryLoaded){
+
+                        // print("fffffffffy6666666"+state.categoriesModel.statusCode);
+                        List<ListItems>?listCategories=state.categoriesModel.list;
+                        return ListView.builder(
+                            itemCount:listCategories?.length,
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            //primary: false,
+                            itemBuilder: (context,index){
+                              return Padding(padding: EdgeInsets.symmetric(horizontal: 5),
+                                child: GestureDetector(
+                                  child: Container(
+                                    height: 35,
+                                    width: 100,
+                                    child: Center(
+                                      child: Text(listCategories[index]?.categoryName.toString(),style: GoogleFonts.poppins(fontWeight: FontWeight.w500,color: Colors.black54,fontSize: 13),),
+                                    ),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.black45,width: 1),
+                                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        color: ColorResources.primaryColor
+                                    ),
+                                  ),
+                                ),
+                              );
+                            });
+                      }
+                      else{
+                        return Container(
+                          child: Text("no data"),
+                        );
+                      }
+                    }),
+                  ))),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text("Select subcategory",style: GoogleFonts.poppins(fontWeight: FontWeight.w500,color: Colors.black54,fontSize: 14),),
+              IconButton(onPressed: (){}, icon: Icon(Icons.filter_alt_outlined),color: Colors.black87,)
+            ],
+          ),
 
           GridView.builder(
               itemCount: 25,

@@ -13,4 +13,6 @@ class ColorResources {
     }
     return primaryColor;
   }
+
+  static Color title1Color=Colors.black87;
 }

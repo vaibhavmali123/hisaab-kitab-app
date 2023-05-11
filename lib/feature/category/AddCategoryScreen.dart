@@ -117,9 +117,14 @@ class AddCategoryScreenState extends State<AddCategoryScreen>{
                     "categoryName":categoryCtrl.text,
                     "sequence":'2'};
 
+                  print("REQ ${request}");
+
                   var provider=Provider.of<LoaderNotifier>(context,listen: false);
+                  provider.loading=true;
                   await provider.postData(baseUrl: ApiProvider.baseUrl, endApi:EndPoint.saveCategory,request:json.encode(request));
+                  print("REQ ${request}");
                   if(provider.isBack){
+                    provider.loading=false;
                     // Navigator.pop(context);
                   }
                 }
@@ -138,57 +143,6 @@ class AddCategoryScreenState extends State<AddCategoryScreen>{
           )
         ],
       );
-/*
-      GestureDetector(
-      onTap: () async{
-        if(categoryCtrl.text.length>0){
-
-          var request={
-            "categoryName":categoryCtrl.text,
-            "sequence":'2'};
-
-          var provider=Provider.of<LoaderNotifier>(context,listen: false);
-          await provider.postData(baseUrl: ApiProvider.baseUrl, endApi:EndPoint.saveCategory,request:json.encode(request));
-          if(provider.isBack){
-           // Navigator.pop(context);
-          }
-        }
-        else{
-          setState(() {
-            categoryField=false;
-          });
-        }
-
-        */
-/* ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Clicked')));*//*
-
-      },
-      child: Neumorphic(
-        margin: EdgeInsets.symmetric(horizontal: 20),
-        style: NeumorphicStyle(
-            color: Colors.green.shade100,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(100)
-                .copyWith(topRight: Radius.circular(0))),
-            depth: -4,
-            lightSource: LightSource.bottomLeft,
-            intensity: 1,
-            // oppositeShadowLightSource: true,
-            shadowLightColorEmboss: Colors.white54),
-        child: Container(
-          height: 53,
-          width: double.infinity,
-          margin: EdgeInsets.symmetric(horizontal: 30),
-          alignment: Alignment.center,
-          child: Text('Submit',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold)),
-        ),
-      ),
-    );
-*/
   }
 
   getsequenceDropdown() {

@@ -19,7 +19,7 @@ ApiHandler.postApi(baseUrl:baseUrl, endApi:endApi,request:request).then((value) 
 
   if (value!["statusCode"] == "200") {
     isBack = true;
-    loading = false;
+   loading = false;
     notifyListeners();
     ReusableWidgets.showToast(msg:StringResources.categoryAddSuccess, type: true);
   }

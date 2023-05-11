@@ -27,10 +27,13 @@ class AddSubcategoryScreen extends StatefulWidget
 
 class AddSubcategoryScreenState extends State<AddSubcategoryScreen>
 {
+  var provider;
   TextEditingController subcategoryCtrl=TextEditingController();
+   TextEditingController categoryCtrl=TextEditingController();
   String? selectedCategory,selectedSubCategory;
   List<String> categoryList=["mobile","Cover","charger"];
   bool subCategoryField=true;
+  int? selectedCategoryId;
 final categoryBloc=CategoryBloc();
 
   @override
@@ -38,15 +41,14 @@ final categoryBloc=CategoryBloc();
     // TODO: implement initState
     categoryBloc.add(GetCategoryListEvent());
     super.initState();
-    //Object categoriesModel=CategoryRepository.fetchCategories(baseUrl: ApiProvider.baseUrl, endApi:EndPoint.getAllCategories);
-    //print("RESPONSE dd ${categoriesModel.toString()}");
-
   }
 
   @override
   Widget build(BuildContext context)
   {
-    return Scaffold(
+   provider=Provider.of<LoaderNotifier>(context,listen: false);
+    provider.loading=false;
+  return Scaffold(
       resizeToAvoidBottomInset: false,
         body:SingleChildScrollView(
           child:Stack(
@@ -58,9 +60,9 @@ final categoryBloc=CategoryBloc();
                   children: [
                     SizedBox(height: 30,),
                     getCategoryDropDown(),
-                    SizedBox(height: 17,),
+                    SizedBox(height: 12,),
                     getSubCategoryField(),
-                    SizedBox(height: 10,),
+                    SizedBox(height: 15,),
                     submitButton()
                   ],
                 ),
@@ -74,9 +76,6 @@ final categoryBloc=CategoryBloc();
     );
   }
 
-  getSubCategoryField() {
-    return Container();
-  }
   submitButton() {
     return SizedBox(
       height: 47,
@@ -84,16 +83,23 @@ final categoryBloc=CategoryBloc();
         minWidth: MediaQuery.of(context).size.width/1.1,
         color: ColorResources.primaryColor,
         onPressed: ()async{
-          var provider=Provider.of<LoaderNotifier>(context,listen: false);
+          print("EER ${selectedCategoryId} ${subcategoryCtrl.text}");
+        if(selectedCategoryId!=null && subcategoryCtrl.text!=""){
           var request={
-            "categoryId":'1',
-            "subCategoryName":"hhhhh"
+            "categoryId":selectedCategoryId,
+            "subCategoryName":subcategoryCtrl.text
           };
+          print("REQ ${request}");
 
           await provider.postData(baseUrl: ApiProvider.baseUrl, endApi:EndPoint.addSubCategory,request:json.encode(request));
           if(provider.isBack){
-            Navigator.pop(context);
-          }
+
+            ReusableWidgets.showToast(msg: "Subcategory added successfully", type: true);
+    }
+    }
+        else{
+          ReusableWidgets.showToast(msg: "Please enter details", type: false);
+        }
         }, child: Text('Submit',
           style: TextStyle(
               color: Colors.black,
@@ -102,91 +108,30 @@ final categoryBloc=CategoryBloc();
       ),
     );
   }
-  getSubcategoryDropdown() {
-    return BlocProvider(
-        create: (_)=>categoryBloc,
-        child:BlocListener<CategoryBloc, CategoryState>(
-          listener: (context, state) {
-            if (state is CategoryError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message!),
-                ),
-              );
-            }
-          },
-          child:BlocBuilder<CategoryBloc,CategoryState>(builder:(context,state){
-            if(state is CategoryInitial){
-              return Center(child: CircularProgressIndicator(),);
-            }
-            else if(state is CategoryLoading){
-              return Center(child: CircularProgressIndicator(),);
+   getSubCategoryField() {
+     return Padding(
+         padding: const EdgeInsets.symmetric(horizontal: 15).copyWith(top: 10),
+         child: TextFormField(
+           controller:subcategoryCtrl,
+           autovalidateMode: AutovalidateMode.disabled,
+           style: TextStyle(color: Colors.black, fontSize: 14),
+           decoration: InputDecoration(
+             border: ReusableWidgets.inputBorder,
+             enabledBorder:ReusableWidgets.inputBorder,
+             focusedBorder:ReusableWidgets.focusedInputBorder,
+             errorBorder:ReusableWidgets.focussedErrorInputBorder,
+             focusedErrorBorder:ReusableWidgets.focussedErrorInputBorder,
+             // hintText: StringResources.enterProductNameField,
+             labelText:StringResources.entersubcategoryNameField,
+             floatingLabelAlignment: FloatingLabelAlignment.start,
+             floatingLabelBehavior: FloatingLabelBehavior.auto,
+             contentPadding: EdgeInsets.only(bottom: 6,left: 10),
+             floatingLabelStyle:TextStyle(color: Colors.black, fontSize: 15,fontWeight: FontWeight.w700),
+             hintStyle: TextStyle(color:Colors.black, fontSize: 16,fontWeight: FontWeight.w800),
 
-            }
-            else if(state is CategoryLoaded){
-              print("fffffffffy6666666");
-              return Padding(padding: EdgeInsets.symmetric(horizontal: 18),
-                child: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    height: 53,
-                    width: double.infinity,
-                    child:Container(
-                      height: 54,
-                      width: MediaQuery.of(context).size.width/1.1,
-                      child: Center(
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                              canvasColor: Colors.white,
-                              // background color for the dropdown items
-                              buttonTheme: ButtonTheme.of(context).copyWith(
-                                alignedDropdown: true, //If false (the default), then the dropdown's menu will be wider than its button.
-                              )),
-                          child: DropdownButton<String>(
-                            underline: Container(
-                              height: 1.0,
-                              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.transparent, width: 0.0))),
-                            ),
-
-                            isExpanded: true,
-                            focusColor: Colors.white,
-                            value: selectedSubCategory,
-                            style: TextStyle(color: Colors.white),
-                            iconEnabledColor: Colors.black,
-                            icon:Icon(Icons.arrow_drop_down),
-                            items: categoryList.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(
-                                  value,
-                                  style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500),
-                                ),
-                              );
-                            }).toList(),
-                            hint: Text(
-                              "Select subcategory"+state.categoriesModel.statusCode,
-                              style: TextStyle(fontSize: 14,  color:Colors.black54, fontWeight: FontWeight.w400),
-                            ),
-                            onChanged: (String? value){
-                              setState(() {
-                                selectedSubCategory=value;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    )
-                ),
-              );
-            }
-            else{
-              return Container(
-                child: Text("no data"),
-              );
-            }
-          }),
-        ));
-  }
+           ),
+         ));
+   }
 
   getCategoryDropDown() {
     return BlocProvider(
@@ -210,18 +155,19 @@ final categoryBloc=CategoryBloc();
 
             }
             else if(state is CategoryLoaded){
-              print("fffffffffy6666666");
+
+             // print("fffffffffy6666666"+state.categoriesModel.statusCode);
+            List<ListItems>?listCategories=state.categoriesModel.list;
               return Padding(padding: EdgeInsets.symmetric(horizontal: 15),
                 child: Container(
                     alignment: Alignment.centerLeft,
-                    height: 50,
+                    height: 48,
                     width: double.infinity,
                     child:Container(
                       height: 54,
-                      width: MediaQuery.of(context).size.width/1.1,
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(width: 1,color: Colors.black45)
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(width: 1,color: Colors.black87)
                       ),
                       child: Center(
                         child: Theme(
@@ -244,21 +190,31 @@ final categoryBloc=CategoryBloc();
                             style: TextStyle(color: Colors.white),
                             iconEnabledColor: Colors.black,
                             icon:Icon(Icons.arrow_drop_down),
-                            items: categoryList.map<DropdownMenuItem<String>>((String value) {
+                            items: listCategories?.map<DropdownMenuItem<String>>((ListItems value) {
                               return DropdownMenuItem<String>(
-                                value: value,
+                                value: value.categoryName,
                                 child: Text(
-                                  value,
-                                  style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500),
+                                  value.categoryName,
+                                  style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500),
                                 ),
                               );
                             }).toList(),
                             hint: Text(
-                              "Select category"+state.categoriesModel.statusCode,
+                              "Select category",
                               style: TextStyle(fontSize: 14,  color:Colors.black54, fontWeight: FontWeight.w400),
                             ),
-                            onChanged: (String? value){
-                              setState(() {
+                            onChanged: (String? value)
+                              {
+                                state.categoriesModel.list?.map((e) {
+                                  if(e.categoryName.contains(value.toString())){
+
+                                    setState(() {
+                                      selectedCategoryId=e.categoryId;
+
+                                    });
+                                  }
+                                }).toList();
+                              setState((){
                                 selectedCategory=value;
                               });
                             },

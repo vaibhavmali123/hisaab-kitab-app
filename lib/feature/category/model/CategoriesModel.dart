@@ -5,11 +5,11 @@ CategoriesModel.forInst();
 	CategoriesModel({
 		required this.statusCode,
 		required this.message,
-		required this.list,
+		 this.list,
 	});
 	late final String statusCode;
 	late final String message;
-	late final List<ListItems> list;
+	late final List<ListItems>? list;
 
 	CategoriesModel.fromJson(Map<String, dynamic> json){
 		statusCode = json['statusCode'];
@@ -21,7 +21,7 @@ CategoriesModel.forInst();
 		final _data = <String, dynamic>{};
 		_data['statusCode'] = statusCode;
 		_data['message'] = message;
-		_data['list'] = list.map((e)=>e.toJson()).toList();
+		_data['list'] = list?.map((e)=>e.toJson()).toList();
 		return _data;
 	}
 
@@ -43,7 +43,7 @@ class ListItems {
 
 	ListItems.fromJson(Map<String, dynamic> json){
 		categoryId = json['categoryId'];
-		categoryName = null;
+		categoryName = json['categoryName']?.join('')??"NA";
 		createdDate = null;
 		sequence = json['sequence'];
 		active = json['active'];
