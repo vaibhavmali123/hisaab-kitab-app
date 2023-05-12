@@ -148,7 +148,7 @@ final categoryBloc=CategoryBloc();
           },
           child:BlocBuilder<CategoryBloc,CategoryState>(builder:(context,state){
             if(state is CategoryInitial){
-              return Center(child: CircularProgressIndicator(),);
+              return const Center(child: CircularProgressIndicator(),);
             }
             else if(state is CategoryLoading){
               return Center(child: CircularProgressIndicator(),);
@@ -156,7 +156,7 @@ final categoryBloc=CategoryBloc();
             }
             else if(state is CategoryLoaded){
 
-             // print("fffffffffy6666666"+state.categoriesModel.statusCode);
+             print("fffffffffy6666666"+state.categoriesModel.toJson().toString());
             List<ListItems>?listCategories=state.categoriesModel.list;
               return Padding(padding: EdgeInsets.symmetric(horizontal: 15),
                 child: Container(
@@ -194,7 +194,7 @@ final categoryBloc=CategoryBloc();
                               return DropdownMenuItem<String>(
                                 value: value.categoryName,
                                 child: Text(
-                                  value.categoryName,
+                                  value.categoryName.toString()==null?"ggg":value.categoryName.toString(),
                                   style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500),
                                 ),
                               );
@@ -206,7 +206,7 @@ final categoryBloc=CategoryBloc();
                             onChanged: (String? value)
                               {
                                 state.categoriesModel.list?.map((e) {
-                                  if(e.categoryName.contains(value.toString())){
+                                  if(e.categoryName!.contains(value.toString())){
 
                                     setState(() {
                                       selectedCategoryId=e.categoryId;

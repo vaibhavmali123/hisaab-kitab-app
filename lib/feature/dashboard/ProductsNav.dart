@@ -166,7 +166,7 @@ getCategoryDropDown() {
                         return DropdownMenuItem<String>(
                           value: value.categoryName,
                           child: Text(
-                            value.categoryName,
+                            value.categoryName.toString()==null?"ggg":value.categoryName.toString(),
                             style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w500),
                           ),
                         );
@@ -178,7 +178,7 @@ getCategoryDropDown() {
                       onChanged: (String? value)
                       {
                         state.categoriesModel.list?.map((e) {
-                          if(e.categoryName.contains(value.toString())){
+                          if(e.categoryName!.contains(value.toString())){
 
                             setState(() {
                               selectedCategoryId=e.categoryId;

@@ -6,7 +6,7 @@ import 'package:hisab_kitab/feature/dashboard/ProfileNav.dart';
 import 'package:hisab_kitab/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
-import 'package:hisab_kitab/feature/products/ProductsScreen.dart';
+import 'package:hisab_kitab/feature/products/ui/ProductsScreen.dart';
 import '../category/AddCategoryScreen.dart';
 import '../subcategory/AddSubcategoryScreen.dart';
 import '../admin/AdminDashboard.dart';

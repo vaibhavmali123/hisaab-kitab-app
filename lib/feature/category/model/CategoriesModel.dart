@@ -43,7 +43,7 @@ class ListItems {
 
 	ListItems.fromJson(Map<String, dynamic> json){
 		categoryId = json['categoryId'];
-		categoryName = json['categoryName']?.join('')??"NA";
+		categoryName = json['categoryName']==null?"NA":json['categoryName'];
 		createdDate = null;
 		sequence = json['sequence'];
 		active = json['active'];

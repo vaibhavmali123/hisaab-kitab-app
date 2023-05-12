@@ -10,4 +10,5 @@ class EndPoint
   static String getAllSubCategories="getAllSubCategories";
   static String getSubCategoriesById="getSubCategoriesById"+"?categoryId=";
   static String saveOrder="order/1/saveOrder/2";
+  static String getProductsById='getProductsById';
 }
