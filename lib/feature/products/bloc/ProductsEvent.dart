@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:hisab_kitab/feature/products/model/ProductsModel.dart';
 class ProductsEvent extends Equatable{
 
   @override
@@ -13,3 +14,4 @@ class GetProductsListEvent extends ProductsEvent{
   final int subCategoryId;
   GetProductsListEvent(this.categoryId, this.subCategoryId);
 }
+

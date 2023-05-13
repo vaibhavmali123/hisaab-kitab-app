@@ -191,7 +191,8 @@ void navigate(String type) {
   );
   }
   getCategoryDialog(){
-    showDialog(context: context,
+    showDialog
+        (context: context,
         useSafeArea: true,
         builder: (context){
           return SafeArea(

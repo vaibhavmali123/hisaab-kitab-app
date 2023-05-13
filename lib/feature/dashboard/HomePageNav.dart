@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hisab_kitab/feature/products/model/ProductsModel.dart';
+import 'package:hisab_kitab/utils/ReusableWidgets.dart';
 import 'package:hisab_kitab/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:shimmer/shimmer.dart';
 import '../category/bloc/CategoryBloc.dart';
 import '../category/bloc/CategoryEvent.dart';
 import '../category/bloc/CategoryState.dart';
@@ -14,6 +16,9 @@ import '../subcategory/model/SubcategoriesModel.dart';
 import 'package:hisab_kitab/feature/products/bloc/ProductsBloc.dart';
 import 'package:hisab_kitab/feature/products/bloc/ProductsEvent.dart';
 import 'package:hisab_kitab/feature/products/bloc/ProductsState.dart';
+import 'package:hisab_kitab/feature/cart/ProductSelectionBloc.dart';
+import 'package:hisab_kitab/feature/cart/CartEvent.dart';
+import 'package:hisab_kitab/feature/cart/CartState.dart';
 class HomePageNav extends StatefulWidget{
 
   State<HomePageNav> createState()=>HomePageNavState();
@@ -23,7 +28,9 @@ class HomePageNavState extends State<HomePageNav> {
 
   final subCategoriesBloc=SubcategoriesBloc();
   final productsBloc=ProductsBloc();
+  final productSelectionBloc=ProductSelectionBloc();
   List<ListElemet>listSubCategories=[];
+  final List<ProductsList>productsCartList=[];
 
   int? selectedCategoryId;
   int? selectedSubCategoryId;
@@ -41,8 +48,9 @@ class HomePageNavState extends State<HomePageNav> {
 
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return Scaffold(
+      floatingActionButton: getFloatingButton(context),
       body:
       Container(
         child: CustomScrollView(
@@ -68,7 +76,7 @@ class HomePageNavState extends State<HomePageNav> {
       centerTitle: false,
       leading: IconButton(onPressed: (){
         Scaffold.of(context).openDrawer();
-      }, icon: Icon(Icons.menu,color: Colors.black87,)),
+      }, icon: Icon(Icons.menu_rounded,color: Colors.black87,size: 30,)),
       actions: [
         Padding(padding: EdgeInsets.only(right: 12),
 
@@ -117,10 +125,10 @@ class HomePageNavState extends State<HomePageNav> {
                     },
                     child:BlocBuilder<CategoryBloc,CategoryState>(builder:(context,state){
                       if(state is CategoryInitial){
-                        return Center(child: CircularProgressIndicator(),);
+                        return ReusableWidgets.getShimerHorizantalList();
                       }
                       else if(state is CategoryLoading){
-                        return Center(child: CircularProgressIndicator(),);
+                        return ReusableWidgets.getShimerHorizantalList();
 
                       }
                       else if(state is CategoryLoaded){
@@ -156,7 +164,7 @@ class HomePageNavState extends State<HomePageNav> {
                                     ),
                                     decoration: BoxDecoration(
                                         border: Border.all(color: selectedIndex==index?Colors.black87:Colors.black45,width: 1),
-                                        borderRadius: BorderRadius.all(Radius.circular(12)),
+                                        borderRadius: BorderRadius.all(Radius.circular(6)),
                                         color: ColorResources.primaryColor
                                     ),
                                   ),
@@ -177,47 +185,11 @@ SizedBox(
     mainAxisAlignment: MainAxisAlignment.end,
     children: [
       Flexible(child: getSubcategoryDropdown())
-      /*Text("Select subcategory",style: GoogleFonts.poppins(fontWeight: FontWeight.w500,color: Colors.black54,fontSize: 14),),
-      IconButton(onPressed: (){}, icon: Icon(Icons.filter_alt_outlined),color: Colors.black87,)*/
     ],
   ),
 ),
 
           getProductsGrid()
-          /*GridView.builder(
-              itemCount: 25,
-              primary:false,
-              shrinkWrap:true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  childAspectRatio: MediaQuery.of(context).size.width/MediaQuery.of(context).size.width, crossAxisCount: 2),
-              itemBuilder: (context,index){
-                return  Container(
-                    height: 130,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(16),),
-                    ),
-                    child: Card(
-                        child:Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children:[
-                              SizedBox(height: 10),
-                              Image.asset("assets/mbl.png",fit: BoxFit.fill,height: 120,width: 100,),
-                              Container(
-                                width: double.infinity,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                    color: ColorResources.primaryColor
-                                ),
-                                child: Center(
-                                  child: Text("Mobile $index",style: GoogleFonts.poppins(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w600),),
-                                ),
-                              )
-                            ]
-                        )
-                    )
-                );
-              })*/
         ],
       )),
       ),
@@ -238,10 +210,10 @@ SizedBox(
           },
           child:BlocBuilder<SubcategoriesBloc,SubcateggoryState>(builder:(context,state){
             if(state is SubcategoryInitial){
-              return Center(child: CircularProgressIndicator(),);
+              return ReusableWidgets.getSubcategoryDropdownShimmer();
             }
             else if(state is SubcategoryLoading){
-              return Center(child: CircularProgressIndicator(),);
+              return ReusableWidgets.getSubcategoryDropdownShimmer();
             }
             else if(state is SubcategoryLoaded){
 
@@ -250,7 +222,6 @@ SizedBox(
               return listSubCategories!=null?MediaQuery.removePadding(context: context, child:
               Padding(padding: EdgeInsets.only(left: 15,right: 5,top: 4),
                 child:Container(
-                    // height: 48,
                      width:MediaQuery.of(context).size.width/2,
                     child:Container(
                       // height: 54,
@@ -388,43 +359,53 @@ SizedBox(
       child: BlocBuilder<ProductsBloc,ProductsState>(builder: (context,state){
         if(state is ProductsInitial)
           {
-            return Center(child: CircularProgressIndicator(),);
+            return ReusableWidgets.getShimmerGrid(context);
           }
         else if(state is ProductsLoadingState){
-          return Center(child: CircularProgressIndicator(),);
+          return ReusableWidgets.getShimmerGrid(context);
         }
         else if(state is ProductsLoadedState){
           return GridView.builder(
               itemCount: state.productsModel.list.length,
               primary:false,
               shrinkWrap:true,
+
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  childAspectRatio: MediaQuery.of(context).size.width/MediaQuery.of(context).size.width, crossAxisCount: 2),
+                  childAspectRatio: MediaQuery.of(context).size.width/MediaQuery.of(context).size.height*1.4, crossAxisCount: 3),
               itemBuilder: (context,index){
                 return  Container(
-                    height: MediaQuery.of(context).size.height/4.5,
-                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height/6,
+                    //width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(16),),
                     ),
-                    child: Card(
-                        child:Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children:[
-                              SizedBox(height: 10),
-                              Image.asset("assets/mbl.png",fit: BoxFit.fill,height: 120,width: 100,),
-                              Container(
-                                width: double.infinity,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                    color: ColorResources.primaryColor
-                                ),
-                                child: Center(
-                                  child: Text(state.productsModel.list[index].productName,style: GoogleFonts.poppins(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w600),),
-                                ),
-                              )
-                            ]
-                        )
+                    child: GestureDetector(
+                        onTap: (){
+                          productsCartList.add(state.productsModel.list[index]);
+                          productSelectionBloc.add(ProductsSelectedEvent(productsCartList));
+                        setState(() {
+
+                        });
+                          },
+                      child: Card(
+                          child:Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children:[
+                                SizedBox(height: 10),
+                                Image.asset("assets/mbl.png",fit: BoxFit.fill,/*height: 120,width: 100,*/),
+                                Container(
+                                  width: double.infinity,
+                                  height: 30,
+                                  decoration: BoxDecoration(
+                                      color: ColorResources.primaryColor
+                                  ),
+                                  child: Center(
+                                    child: Text(state.productsModel.list[index].productName,style: GoogleFonts.poppins(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w600),),
+                                  ),
+                                )
+                              ]
+                          )
+                      ),
                     )
                 );
               });
@@ -437,5 +418,99 @@ SizedBox(
       },),
     ),
     );
+  }
+  Widget getFloatingButton(BuildContext context) {
+    return BlocProvider(create:(_)=>productSelectionBloc,
+    child: BlocListener<ProductSelectionBloc,CartState>(listener:(context,state){
+      if(state is ProductsError)
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error"),
+          ),
+        );
+      }
+    },
+    child: BlocBuilder<ProductSelectionBloc,CartState>(builder:(context,state){
+      if(state is ProductsSelectionState){
+        return SizedBox(
+          width: 70,height: 45,
+          child: FloatingActionButton(
+              shape:RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.5)
+              ),
+              onPressed: (){
+                  showPlaceOrderDialog(state);
+              },backgroundColor: Colors.green,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                Text(state.productsCartList.length.toString(),style: TextStyle(fontWeight:FontWeight.w500,fontSize: 13),),
+                  Icon(Icons.arrow_forward,size: 22,)
+                ],)
+          ),
+        );
+      }
+      else{
+        return Container();
+      }
+    },),
+    ),
+    );
+  }
+
+  void showPlaceOrderDialog(ProductsSelectionState state) {
+    showDialog
+      (context: context,
+        useSafeArea: true,
+        builder: (context){
+          return SafeArea(
+              child:FractionallySizedBox(
+                heightFactor: 0.9,
+                widthFactor: 0.9,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30)
+                  ),
+                  child: Material(
+                    child: Column(
+                      children: [
+                        Expanded(flex:1,child:Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 35,
+                          color: ColorResources.primaryColor,
+                          child:
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+
+                              Padding(padding: EdgeInsets.only(left: 8),child:
+                              Text("Place Order",style: TextStyle(fontSize: 14,color: Colors.black87,fontWeight: FontWeight.w800),),),
+                              IconButton(onPressed:(){Navigator.pop(context);}, icon:Icon(Icons.close,size: 30,),color: Colors.black87,)
+                            ],
+                          ),
+                        )),
+                        Expanded(
+                            flex: 10,
+                            child: ListView.builder(
+                            itemCount: state.productsCartList.length,
+                            itemBuilder:(context,index){
+                              return Container(
+                                child: Column(
+                                  children: [
+
+                                    Text(state.productsCartList[index].productName)
+                                  ],
+                                ),
+                              );
+                            }))
+                      ],
+                    ),
+                  ),
+                ),
+              )
+          );
+        });
   }
 }
