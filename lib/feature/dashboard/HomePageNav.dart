@@ -50,6 +50,7 @@ class HomePageNavState extends State<HomePageNav> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       floatingActionButton: getFloatingButton(context),
       body:
       Container(
@@ -365,7 +366,61 @@ SizedBox(
           return ReusableWidgets.getShimmerGrid(context);
         }
         else if(state is ProductsLoadedState){
-          return GridView.builder(
+          return ListView.builder(
+            physics: BouncingScrollPhysics(),
+              itemCount: state.productsModel.list.length,
+              primary: false,
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemBuilder:(context,index){
+                return GestureDetector(
+                  onTap: (){
+                    productsCartList.add(state.productsModel.list[index]);
+                    productSelectionBloc.add(ProductsSelectedEvent(productsCartList));
+                    setState(() {
+                    });
+                  },
+                  child:Container(
+                    margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
+                    padding: EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5)
+                    ),
+                    //height: 75,
+                    child:Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(state.productsModel.list[index].productName,style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.9),)
+                              ),
+                              RichText(text:
+                              TextSpan(text: "In stock:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                  children: <TextSpan>[
+                                    TextSpan(text: state.productsModel.list[index].quantity.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                  ]
+                              ),)
+                            ],
+                          ),
+                          SizedBox(height: 2,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              RichText(text:
+                              TextSpan(text: "Price:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                  children: <TextSpan>[
+                                    TextSpan(text: state.productsModel.list[index].price.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                  ]
+                              ),)
+                              ]
+                          )
+                        ],
+                    )
+                  )
+                );
+              });
+          /*GridView.builder(
               itemCount: state.productsModel.list.length,
               primary:false,
               shrinkWrap:true,
@@ -392,7 +447,7 @@ SizedBox(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children:[
                                 SizedBox(height: 10),
-                                Image.asset("assets/mbl.png",fit: BoxFit.fill,/*height: 120,width: 100,*/),
+                                Image.asset("assets/mbl.png",fit: BoxFit.fill,*//*height: 120,width: 100,*//*),
                                 Container(
                                   width: double.infinity,
                                   height: 30,
@@ -408,7 +463,7 @@ SizedBox(
                       ),
                     )
                 );
-              });
+              });*/
         }
         else{
           return Container(
@@ -478,7 +533,7 @@ SizedBox(
                       children: [
                         Expanded(flex:1,child:Container(
                           width: MediaQuery.of(context).size.width,
-                          height: 35,
+                          height: 20,
                           color: ColorResources.primaryColor,
                           child:
                           Row(
@@ -493,7 +548,60 @@ SizedBox(
                         )),
                         Expanded(
                             flex: 10,
-                            child: ListView.builder(
+                            child:ListView.builder(
+                                physics: BouncingScrollPhysics(),
+                                itemCount: productsCartList.length,
+                                primary: false,
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemBuilder:(context,index){
+                                  return GestureDetector(
+                                      onTap: (){
+
+                                      },
+                                      child:Container(
+                                          margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(5)
+                                          ),
+                                          //height: 75,
+                                          child:Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(productsCartList[index].productName,style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.9),)
+                                                  )],
+                                              ),
+                                              Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    RichText(text:
+                                                    TextSpan(text: "In stock:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                                        children: <TextSpan>[
+                                                          TextSpan(text: productsCartList[index].quantity.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                                        ]
+                                                    ),)
+                                                  ]
+                                              ),
+                                              Row(
+                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                  children: [
+                                                    RichText(text:
+                                                    TextSpan(text: "Price:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                                        children: <TextSpan>[
+                                                          TextSpan(text: productsCartList[index].price.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                                        ]
+                                                    ),)
+                                                  ]
+                                              )
+                                            ],
+                                          )
+                                      )
+                                  );
+                                })
+                          /*ListView.builder(
                             itemCount: state.productsCartList.length,
                             itemBuilder:(context,index){
                               return Container(
@@ -504,7 +612,7 @@ SizedBox(
                                   ],
                                 ),
                               );
-                            }))
+                            })*/)
                       ],
                     ),
                   ),

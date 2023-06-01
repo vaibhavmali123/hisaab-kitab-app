@@ -247,6 +247,7 @@ final subcategoriesBloc=SubcategoriesBloc();
                   ),
                   onChanged: (String? value){
                     setState(() {
+
                       selectedCategory=value;
                     });
                   },

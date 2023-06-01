@@ -75,7 +75,7 @@ static getSubcategoryDropdownShimmer(){
                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                            children:[
                              SizedBox(height: 10),
-                             Image.asset("",fit: BoxFit.fill,height: 120,width: 100,),
+                   //          Image.asset("",fit: BoxFit.fill,height: 120,width: 100,),
                              Container(
                                width: double.infinity,
                                height: 30,
