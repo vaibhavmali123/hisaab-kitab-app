@@ -41,7 +41,7 @@ static getSubcategoryDropdownShimmer(){
       baseColor: Colors.grey.shade500, highlightColor: Colors.grey.shade100,
       child:Container(height: 45,width: 130,));
 }
- static getShimerHorizantalList(){
+ static getShimerHorizantalList(BuildContext  context){
    return Shimmer.fromColors(
        baseColor: Colors.grey.shade500, highlightColor: Colors.grey.shade100,
        child:ListView.builder(
@@ -50,6 +50,61 @@ static getSubcategoryDropdownShimmer(){
            itemBuilder:(context,index){
          return Container(height: 45,width: 130,);
        }));
+ }
+ static getShimerListVertical(BuildContext  context){
+   return Shimmer.fromColors(
+       baseColor: Colors.grey.shade500, highlightColor: Colors.grey.shade100,
+       child:ListView.builder(
+           physics: BouncingScrollPhysics(),
+           itemCount: 10,
+           primary: false,
+           scrollDirection: Axis.vertical,
+           shrinkWrap: true,
+           itemBuilder:(context,index){
+             return GestureDetector(
+                 onTap: (){
+
+                 },
+                 child:Container(
+                     margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
+                     padding: EdgeInsets.all(14),
+                     decoration: BoxDecoration(
+                         color: Colors.white,
+                         borderRadius: BorderRadius.circular(5)
+                     ),
+                     //height: 75,
+                     child:Column(
+                       children: [
+                         Row(
+                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                           children: [
+                             Text("jj",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.9),)
+                             ),
+                             RichText(text:
+                             TextSpan(text: "In stock:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                 children: <TextSpan>[
+                                   TextSpan(text: "99",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                 ]
+                             ),)
+                           ],
+                         ),
+                         SizedBox(height: 2,),
+                         Row(
+                             mainAxisAlignment: MainAxisAlignment.end,
+                             children: [
+                               RichText(text:
+                               TextSpan(text: "Price:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                   children: <TextSpan>[
+                                     TextSpan(text: "ii",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                   ]
+                               ),)
+                             ]
+                         )
+                       ],
+                     )
+                 )
+             );
+           }));
  }
  static getShimmerGrid(BuildContext context){
    return Shimmer.fromColors(

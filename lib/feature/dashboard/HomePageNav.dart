@@ -30,8 +30,9 @@ class HomePageNavState extends State<HomePageNav> {
   final productsBloc=ProductsBloc();
   final productSelectionBloc=ProductSelectionBloc();
   List<ListElemet>listSubCategories=[];
-  final List<ProductsList>productsCartList=[];
-
+   List<ProductsList>productsCartList=[];
+  List<dynamic>productIdList=[];
+  List<dynamic>productQuantityList=[];
   int? selectedCategoryId;
   int? selectedSubCategoryId;
   int? selectedIndex;
@@ -126,10 +127,10 @@ class HomePageNavState extends State<HomePageNav> {
                     },
                     child:BlocBuilder<CategoryBloc,CategoryState>(builder:(context,state){
                       if(state is CategoryInitial){
-                        return ReusableWidgets.getShimerHorizantalList();
+                        return ReusableWidgets.getShimerHorizantalList(context);
                       }
                       else if(state is CategoryLoading){
-                        return ReusableWidgets.getShimerHorizantalList();
+                        return ReusableWidgets.getShimerHorizantalList(context);
 
                       }
                       else if(state is CategoryLoaded){
@@ -360,10 +361,10 @@ SizedBox(
       child: BlocBuilder<ProductsBloc,ProductsState>(builder: (context,state){
         if(state is ProductsInitial)
           {
-            return ReusableWidgets.getShimmerGrid(context);
+            return ReusableWidgets.getShimerListVertical(context);
           }
         else if(state is ProductsLoadingState){
-          return ReusableWidgets.getShimmerGrid(context);
+          return ReusableWidgets.getShimerListVertical(context);
         }
         else if(state is ProductsLoadedState){
           return ListView.builder(
@@ -373,12 +374,51 @@ SizedBox(
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               itemBuilder:(context,index){
+                productQuantityList.add(0);
                 return GestureDetector(
                   onTap: (){
-                    productsCartList.add(state.productsModel.list[index]);
-                    productSelectionBloc.add(ProductsSelectedEvent(productsCartList));
+                    print("Add to cart start:-------------- ${productIdList.length}");
                     setState(() {
+
                     });
+                    if(productsCartList.length>0){
+                      for(int i=0;i<productIdList.length;i++){
+                        if(productIdList.contains(state.productsModel.list[index].productId)){
+
+                          for(int j=0;j<productsCartList.length;j++){
+
+                            if(productsCartList[j].productId==state.productsModel.list[index].productId){
+                              productQuantityList[index]=productQuantityList[index]+1;
+                            }
+                          }
+                          setState(() {
+                          });
+                          break;
+                        }
+                        else if(!productIdList.contains(state.productsModel.list[index].productId)){
+
+                          print("DDDDDDDDD not exist ${productIdList[i]}  ll  ${state.productsModel.list[index].productId}");
+
+                          productsCartList.add(state.productsModel.list[index]);
+                          productSelectionBloc.add(ProductsSelectedEvent(productsCartList));
+                          productIdList.add(state.productsModel.list[index].productId);
+                          productQuantityList[index]=productQuantityList[index]+1;
+                          setState(() {
+                          });
+                          break;
+                        }
+                        setState(() {
+                        });
+
+                      }
+                    }else{
+                      productsCartList.add(state.productsModel.list[index]);
+                      productSelectionBloc.add(ProductsSelectedEvent(productsCartList));
+                      productIdList.add(state.productsModel.list[index].productId);
+                      productQuantityList[index]=productQuantityList[index]+1;
+                      setState(() {
+                      });
+                    }
                   },
                   child:Container(
                     margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
@@ -403,10 +443,16 @@ SizedBox(
                               ),)
                             ],
                           ),
-                          SizedBox(height: 2,),
+                          SizedBox(height: 5,), 
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                              RichText(text:
+                              TextSpan(text: productQuantityList[index]!=0?"Quantity: ":"",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                  children: <TextSpan>[
+                                    TextSpan(text: productQuantityList[index]!=0?productQuantityList[index].toString():"",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                  ]
+                              ),),
                               RichText(text:
                               TextSpan(text: "Price:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
                                   children: <TextSpan>[
@@ -534,15 +580,31 @@ SizedBox(
                         Expanded(flex:1,child:Container(
                           width: MediaQuery.of(context).size.width,
                           height: 20,
-                          color: ColorResources.primaryColor,
+                          color:ColorResources.primaryColor,
                           child:
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
 
                               Padding(padding: EdgeInsets.only(left: 8),child:
-                              Text("Place Order",style: TextStyle(fontSize: 14,color: Colors.black87,fontWeight: FontWeight.w800),),),
-                              IconButton(onPressed:(){Navigator.pop(context);}, icon:Icon(Icons.close,size: 30,),color: Colors.black87,)
+                              SizedBox(
+                                height: 47,
+                                child: IconButton(onPressed:(){Navigator.pop(context);}, icon:Icon(Icons.arrow_back,size: 30,),color: Colors.black87,)
+                              ),),
+                              Padding(padding:EdgeInsets.only(right: 15),
+                                child: MaterialButton(
+                                  //minWidth: MediaQuery.of(context).size.width/1.1,
+                                  color: Colors.green,
+                                  onPressed: ()async{
+
+                                  }, child: Text('Place order',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold)),
+                                ),
+                              )
+
                             ],
                           ),
                         )),
