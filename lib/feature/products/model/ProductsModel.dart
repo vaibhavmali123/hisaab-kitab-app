@@ -29,10 +29,10 @@ class ProductsList {
     required this.productName,
     required this.price,
     required this.quantity,
-    this.comment,
-    this.productImage,
-    this.createdDate,
-    this.updatedDate,
+    required this.comment,
+    required this.productImage,
+    required this.createdDate,
+    required this.updatedDate,
     required this.categoryId,
     required this.subCategoryId,
   });
@@ -40,10 +40,10 @@ class ProductsList {
   late final String productName;
   late final int price;
   late final int quantity;
-  late final Null comment;
-  late final Null productImage;
-  late final Null createdDate;
-  late final Null updatedDate;
+  late final String comment;
+  late final String productImage;
+  late final String createdDate;
+  late final String updatedDate;
   late final int categoryId;
   late final int subCategoryId;
 
@@ -52,12 +52,12 @@ class ProductsList {
     productName = json['productName'];
     price = json['price'];
     quantity = json['quantity'];
-    comment = null;
-    productImage = null;
-    createdDate = null;
-    updatedDate = null;
+    comment = json['comment']==null?"":json['comment'];
+    productImage = json['productImage']==null?"":json['productImage'];
+    createdDate = json['createdDate']==null?"":json['createdDate'];
+    updatedDate = json['updatedDate']==null?"":json['updatedDate'];
     categoryId = json['categoryId'];
-    subCategoryId = json['subCategoryId'];
+    subCategoryId = json['subCategoryId']==null?json['subCategoryId']:json['subCategoryId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -66,12 +66,12 @@ class ProductsList {
     _data['productName'] = productName;
     _data['price'] = price;
     _data['quantity'] = quantity;
-    _data['comment'] = comment;
-    _data['productImage'] = productImage;
+    _data['comment'] = comment==null?"":comment;
+    _data['productImage'] = productImage==null?"":productImage;
     _data['createdDate'] = createdDate;
     _data['updatedDate'] = updatedDate;
     _data['categoryId'] = categoryId;
-    _data['subCategoryId'] = subCategoryId;
+    _data['subCategoryId'] = subCategoryId==null?0:subCategoryId;
     return _data;
   }
 }

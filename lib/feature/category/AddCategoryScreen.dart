@@ -121,10 +121,13 @@ class AddCategoryScreenState extends State<AddCategoryScreen>{
 
                   var provider=Provider.of<LoaderNotifier>(context,listen: false);
                   provider.loading=true;
-                  await provider.postData(baseUrl: ApiProvider.baseUrl, endApi:EndPoint.saveCategory,request:json.encode(request));
+                  await provider.postData(baseUrl: ApiProvider.baseUrl,
+                      endApi:EndPoint.saveCategory,request:json.encode(request));
                   print("REQ ${request}");
                   if(provider.isBack){
                     provider.loading=false;
+                    ReusableWidgets.showToast(msg:StringResources.categoryAddSuccess, type: true);
+
                     // Navigator.pop(context);
                   }
                 }

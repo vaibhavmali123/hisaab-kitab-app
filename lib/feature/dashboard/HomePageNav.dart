@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hisab_kitab/feature/customer/model/CustomerModel.dart';
+import 'package:hisab_kitab/feature/customer/ui/CustomerPage.dart';
+import 'package:hisab_kitab/feature/cart/CartModel.dart';
+import 'package:hisab_kitab/feature/cart/ui/CartPage.dart';
 import 'package:hisab_kitab/feature/products/model/ProductsModel.dart';
 import 'package:hisab_kitab/utils/ReusableWidgets.dart';
 import 'package:hisab_kitab/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shimmer/shimmer.dart';
 import '../category/bloc/CategoryBloc.dart';
 import '../category/bloc/CategoryEvent.dart';
 import '../category/bloc/CategoryState.dart';
@@ -18,6 +21,7 @@ import 'package:hisab_kitab/feature/products/bloc/ProductsEvent.dart';
 import 'package:hisab_kitab/feature/products/bloc/ProductsState.dart';
 import 'package:hisab_kitab/feature/cart/ProductSelectionBloc.dart';
 import 'package:hisab_kitab/feature/cart/CartEvent.dart';
+import 'dart:convert';
 import 'package:hisab_kitab/feature/cart/CartState.dart';
 class HomePageNav extends StatefulWidget{
 
@@ -28,16 +32,19 @@ class HomePageNavState extends State<HomePageNav> {
 
   final subCategoriesBloc=SubcategoriesBloc();
   final productsBloc=ProductsBloc();
+  Customer? customer;
   final productSelectionBloc=ProductSelectionBloc();
   List<ListElemet>listSubCategories=[];
    List<ProductsList>productsCartList=[];
   List<dynamic>productIdList=[];
   List<dynamic>productQuantityList=[];
   int? selectedCategoryId;
-  int? selectedSubCategoryId;
+  int? selectedSubCategoryId=0;
   int? selectedIndex;
   String? selectedSubCategory;
   final categoryBloc=CategoryBloc();
+  List<CartModel>cartList=[];
+
   @override
   void initState() {
     // TODO: implement initState
@@ -70,15 +77,15 @@ class HomePageNavState extends State<HomePageNav> {
       backgroundColor:Colors.white,
       expandedHeight: 160,
       floating: true,
-      toolbarTextStyle: TextStyle(fontWeight: FontWeight.w800,fontSize: 18,color: Colors.black87),
+      toolbarTextStyle: const TextStyle(fontWeight: FontWeight.w800,fontSize: 18,color: Colors.black87),
       // toolbarHeight: 40,
       pinned: true,
-      title: Text("Hisaab kitab"),
-      titleTextStyle: TextStyle(fontWeight: FontWeight.w800,fontSize: 18,color: Colors.black87),
+      title: const Text("Hisaab kitab"),
+      titleTextStyle: const TextStyle(fontWeight: FontWeight.w800,fontSize: 18,color: Colors.black87),
       centerTitle: false,
       leading: IconButton(onPressed: (){
         Scaffold.of(context).openDrawer();
-      }, icon: Icon(Icons.menu_rounded,color: Colors.black87,size: 30,)),
+      }, icon: const Icon(Icons.menu_rounded,color: Colors.black87,size: 30,)),
       actions: [
         Padding(padding: EdgeInsets.only(right: 12),
 
@@ -96,7 +103,6 @@ class HomePageNavState extends State<HomePageNav> {
               getHeader()
             ],
           ),
-
         ),
       ),
     );
@@ -156,18 +162,19 @@ class HomePageNavState extends State<HomePageNav> {
                                      selectedSubCategory=null;
                                    });
                                    subCategoriesBloc.add(GetSubcategoryevent(selectedCategoryId!));
+                                   productsBloc.add(GetProductsListEvent(selectedCategoryId!,0));
 
                                   },
                                   child: Container(
                                     height: 35,
                                     width: 100,
-                                    child: Center(
-                                      child: Text(listCategories![index]!.categoryName.toString(),style: GoogleFonts.poppins(fontWeight: index==selectedIndex?FontWeight.w600: FontWeight.w500,color:index==selectedIndex?Colors.black87: Colors.black54,fontSize:index==selectedIndex?14:13),),
-                                    ),
                                     decoration: BoxDecoration(
                                         border: Border.all(color: selectedIndex==index?Colors.black87:Colors.black45,width: 1),
                                         borderRadius: BorderRadius.all(Radius.circular(6)),
                                         color: ColorResources.primaryColor
+                                    ),
+                                    child: Center(
+                                      child: Text(listCategories![index]!.categoryName.toString(),style: GoogleFonts.poppins(fontWeight: index==selectedIndex?FontWeight.w600: FontWeight.w500,color:index==selectedIndex?Colors.black87: Colors.black54,fontSize:index==selectedIndex?14:13),),
                                     ),
                                   ),
                                 ),
@@ -175,23 +182,34 @@ class HomePageNavState extends State<HomePageNav> {
                             });
                       }
                       else{
-                        return Container(
-                          child: Text("no data"),
-                        );
+                        return const Text("no data");
                       }
                     }),
                   ))),
 SizedBox(
   height:45,
-  child:           Row(
-    mainAxisAlignment: MainAxisAlignment.end,
+  child:
+  Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
+      Padding(padding:EdgeInsets.only(top:2,left: 2),
+      child: InkWell(
+        onTap: ()async{
+          customer=await Navigator.push(context, MaterialPageRoute(builder:(context){
+            return CustomerPage();
+          }));
+          print("RESULT: ${customer?.name}");
+          setState(() {
+          });
+        },
+        child: Row(children:  [Icon(Icons.person,color: Colors.green,),
+          Text(customer!=null?customer!.name:"Select customer",style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500),)],),),),
       Flexible(child: getSubcategoryDropdown())
     ],
   ),
 ),
 
-          getProductsGrid()
+          getProductsList()
         ],
       )),
       ),
@@ -204,7 +222,7 @@ SizedBox(
           listener: (context, state) {
             if (state is CategoryError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text("Error"),
                 ),
               );
@@ -221,37 +239,28 @@ SizedBox(
 
               // print("fffffffffy6666666"+state.categoriesModel.statusCode)
               listSubCategories=state.suubcategoriesModel.list;
-              return listSubCategories!=null?MediaQuery.removePadding(context: context, child:
+              return listSubCategories!=null?MediaQuery.removePadding(context: context,removeTop: true, child:
               Padding(padding: EdgeInsets.only(left: 15,right: 5,top: 4),
                 child:Container(
                      width:MediaQuery.of(context).size.width/2,
                     child:Container(
                       // height: 54,
-                      decoration: BoxDecoration(
-//                          borderRadius: BorderRadius.circular(6),
-  //                        border: Border.all(width: 1,color: Colors.black87)
-                      ),
+                      decoration: const BoxDecoration(),
                       child: Center(
                         child: Theme(
                           data: Theme.of(context).copyWith(
                               canvasColor: Colors.white,
-                              // background color for the dropdown items
                               buttonTheme: ButtonTheme.of(context).copyWith(
                                 alignedDropdown: true, //If false (the default), then the dropdown's menu will be wider than its button.
                               )),
                           child: DropdownButton<String>(
                             elevation: 10,
-                            /*underline: Container(
-                              height: 1.0,
-                              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.transparent, width: 0.0))),
-                            ),*/
-
                             isExpanded: false,
                             focusColor: Colors.white,
                             value: selectedSubCategory,
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                             iconEnabledColor: Colors.green,
-                            icon:Icon(Icons.filter_alt),
+                            icon:const Icon(Icons.filter_alt),
                             items: listSubCategories.map<DropdownMenuItem<String>>((ListElemet value) {
                               return DropdownMenuItem<String>(
                                 value: value.subCategoryName,
@@ -261,7 +270,7 @@ SizedBox(
                                 ),
                               );
                             }).toList(),
-                            hint: Text(
+                            hint: const Text(
                               "Select SubCategory",
                               style: TextStyle(fontSize: 14,  color:Colors.black54, fontWeight: FontWeight.w400),
                             ),
@@ -280,7 +289,7 @@ SizedBox(
                               setState(() {
                                     selectedSubCategory=value;
                                   });
-                                  productsBloc.add(GetProductsListEvent(selectedCategoryId!,selectedSubCategoryId!));
+                                  productsBloc.add(GetProductsListEvent(selectedCategoryId!,selectedSubCategoryId==null?0:selectedSubCategoryId!));
 
                             },
                           ),
@@ -288,7 +297,7 @@ SizedBox(
                       ),
                     )
                 ),
-              ),removeTop: true,):Container();
+              ),):Container();
             }
             else{
               return Container(
@@ -346,7 +355,7 @@ SizedBox(
 
   }
 
-  getProductsGrid() {
+  getProductsList() {
     return BlocProvider(create: (_)=>productsBloc,
     child: BlocListener<ProductsBloc,ProductsState>(listener: (context,state){
       if(state is ProductsError)
@@ -367,8 +376,9 @@ SizedBox(
           return ReusableWidgets.getShimerListVertical(context);
         }
         else if(state is ProductsLoadedState){
-          return ListView.builder(
-            physics: BouncingScrollPhysics(),
+          return Padding(padding: EdgeInsets.only(bottom:55),child:
+          state.productsModel.list.length>0?ListView.builder(
+              physics: BouncingScrollPhysics(),
               itemCount: state.productsModel.list.length,
               primary: false,
               scrollDirection: Axis.vertical,
@@ -376,140 +386,105 @@ SizedBox(
               itemBuilder:(context,index){
                 productQuantityList.add(0);
                 return GestureDetector(
-                  onTap: (){
-                    print("Add to cart start:-------------- ${productIdList.length}");
-                    setState(() {
+                    onTap: (){
 
-                    });
-                    if(productsCartList.length>0){
-                      for(int i=0;i<productIdList.length;i++){
-                        if(productIdList.contains(state.productsModel.list[index].productId)){
-
-                          for(int j=0;j<productsCartList.length;j++){
-
-                            if(productsCartList[j].productId==state.productsModel.list[index].productId){
-                              productQuantityList[index]=productQuantityList[index]+1;
-                            }
-                          }
-                          setState(() {
-                          });
-                          break;
-                        }
-                        else if(!productIdList.contains(state.productsModel.list[index].productId)){
-
-                          print("DDDDDDDDD not exist ${productIdList[i]}  ll  ${state.productsModel.list[index].productId}");
-
-                          productsCartList.add(state.productsModel.list[index]);
-                          productSelectionBloc.add(ProductsSelectedEvent(productsCartList));
-                          productIdList.add(state.productsModel.list[index].productId);
-                          productQuantityList[index]=productQuantityList[index]+1;
-                          setState(() {
-                          });
-                          break;
-                        }
-                        setState(() {
-                        });
-
-                      }
-                    }else{
-                      productsCartList.add(state.productsModel.list[index]);
-                      productSelectionBloc.add(ProductsSelectedEvent(productsCartList));
-                      productIdList.add(state.productsModel.list[index].productId);
-                      productQuantityList[index]=productQuantityList[index]+1;
-                      setState(() {
-                      });
-                    }
-                  },
-                  child:Container(
-                    margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
-                    padding: EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5)
-                    ),
-                    //height: 75,
-                    child:Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(state.productsModel.list[index].productName,style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.9),)
-                              ),
-                              RichText(text:
-                              TextSpan(text: "In stock:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
-                                  children: <TextSpan>[
-                                    TextSpan(text: state.productsModel.list[index].quantity.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
-                                  ]
-                              ),)
-                            ],
-                          ),
-                          SizedBox(height: 5,), 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                              RichText(text:
-                              TextSpan(text: productQuantityList[index]!=0?"Quantity: ":"",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
-                                  children: <TextSpan>[
-                                    TextSpan(text: productQuantityList[index]!=0?productQuantityList[index].toString():"",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
-                                  ]
-                              ),),
-                              RichText(text:
-                              TextSpan(text: "Price:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
-                                  children: <TextSpan>[
-                                    TextSpan(text: state.productsModel.list[index].price.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
-                                  ]
-                              ),)
-                              ]
-                          )
-                        ],
-                    )
-                  )
-                );
-              });
-          /*GridView.builder(
-              itemCount: state.productsModel.list.length,
-              primary:false,
-              shrinkWrap:true,
-
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  childAspectRatio: MediaQuery.of(context).size.width/MediaQuery.of(context).size.height*1.4, crossAxisCount: 3),
-              itemBuilder: (context,index){
-                return  Container(
-                    height: MediaQuery.of(context).size.height/6,
-                    //width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(16),),
-                    ),
-                    child: GestureDetector(
-                        onTap: (){
-                          productsCartList.add(state.productsModel.list[index]);
-                          productSelectionBloc.add(ProductsSelectedEvent(productsCartList));
-                        setState(() {
-
-                        });
-                          },
-                      child: Card(
-                          child:Column(
+                    },
+                    child:Container(
+                        margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
+                        padding: EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5)
+                        ),
+                        //height: 75,
+                        child:Column(
+                          children: [
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children:[
-                                SizedBox(height: 10),
-                                Image.asset("assets/mbl.png",fit: BoxFit.fill,*//*height: 120,width: 100,*//*),
-                                Container(
-                                  width: double.infinity,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                      color: ColorResources.primaryColor
+                              children: [
+                                Text(state.productsModel.list[index].productName,style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.9),)
+                                ),
+                                RichText(text:
+                                TextSpan(text: "In stock:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                    children: <TextSpan>[
+                                      TextSpan(text: state.productsModel.list[index].quantity.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                    ]
+                                ),)
+                              ],
+                            ),
+                            SizedBox(height: 15,),
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  RichText(text:
+                                  TextSpan(text: "Price:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
+                                      children: <TextSpan>[
+                                        TextSpan(text: state.productsModel.list[index].price.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                      ]
+                                  ),),
+                                  Container(
+                                    child: Row(
+                                      children: [
+                                        GestureDetector(
+                                          child: Container(decoration: BoxDecoration(
+                                            color: ColorResources.primaryColor,
+                                            shape:BoxShape.circle,
+                                          ),
+                                              child:Icon(Icons.remove)
+                                          ),
+                                          onTap: (){
+                                            if(productQuantityList[index]!=0){
+                                              productQuantityList[index]=productQuantityList[index]-1;
+                                              setState(() {
+                                              });
+                                              removeFromCart(index,context,state);
+                                            }
+                                          },
+                                        ),
+                                        SizedBox(width:14 ,),
+                                        RichText(text:
+                                        TextSpan(
+                                            children: <TextSpan>[
+                                              TextSpan(text:
+                                              productQuantityList[index].toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
+                                            ]
+                                        ),),SizedBox(width: 14,),
+                                        GestureDetector(
+                                          child:Container(decoration: BoxDecoration(
+                                            color: ColorResources.primaryColor,
+                                            shape:BoxShape.circle,
+                                          ),
+                                              child:Icon(Icons.add)
+                                          ),
+                                          onTap: (){
+                                            productQuantityList[index]=productQuantityList[index]+1;
+                                            setState(() {
+                                            });
+                                            addToCart(index,context,state);
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  child: Center(
-                                    child: Text(state.productsModel.list[index].productName,style: GoogleFonts.poppins(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w600),),
-                                  ),
-                                )
-                              ]
-                          )
-                      ),
+                                ]
+                            )
+                          ],
+                        )
                     )
                 );
-              });*/
+              }):Container(
+            child: Container(
+              height: MediaQuery.of(context).size.height/2,
+              child:Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Text("No products found for selected category"),
+                  )
+                ],
+              ),
+            ),
+          ),);
         }
         else{
           return Container(
@@ -534,23 +509,27 @@ SizedBox(
     },
     child: BlocBuilder<ProductSelectionBloc,CartState>(builder:(context,state){
       if(state is ProductsSelectionState){
-        return SizedBox(
+        return state.cartList.length>0?SizedBox(
           width: 70,height: 45,
           child: FloatingActionButton(
               shape:RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.5)
               ),
-              onPressed: (){
-                  showPlaceOrderDialog(state);
+              onPressed: () async {
+               final result=await Navigator.push(context, MaterialPageRoute(builder: (context)=>CartPage(state)));
+                print("FLAG ${result}");
+                if(result==0){
+                  clearCartValues();
+                }
               },backgroundColor: Colors.green,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                Text(state.productsCartList.length.toString(),style: TextStyle(fontWeight:FontWeight.w500,fontSize: 13),),
+                Text(state.cartList.length.toString(),style: TextStyle(fontWeight:FontWeight.w500,fontSize: 13),),
                   Icon(Icons.arrow_forward,size: 22,)
                 ],)
           ),
-        );
+        ):Container();
       }
       else{
         return Container();
@@ -560,127 +539,66 @@ SizedBox(
     );
   }
 
-  void showPlaceOrderDialog(ProductsSelectionState state) {
-    showDialog
-      (context: context,
-        useSafeArea: true,
-        builder: (context){
-          return SafeArea(
-              child:FractionallySizedBox(
-                heightFactor: 0.9,
-                widthFactor: 0.9,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30)
-                  ),
-                  child: Material(
-                    child: Column(
-                      children: [
-                        Expanded(flex:1,child:Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 20,
-                          color:ColorResources.primaryColor,
-                          child:
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+  CartModel? cartModel=null;
+  void addToCart(int index, BuildContext context, ProductsLoadedState state) {
+    print("Add to cart start:-------------- ${productIdList.length}");
+    setState(() {
+      cartModel=null;
+    });
+    cartModel = CartModel(
+        productId: state.productsModel.list[index].productId,
+        quantity:productQuantityList[index],
+        inStockQTY: state.productsModel.list[index].quantity,
+        productName: state.productsModel.list[index].productName,
+        comment: state.productsModel.list[index].comment,
+        price: state.productsModel.list[index].price,
+        productImage: state.productsModel.list[index].productImage,
+        categoryId: state.productsModel.list[index].categoryId,
+        createdDate: state.productsModel.list[index].createdDate,
+        updatedDate: state.productsModel.list[index].updatedDate);
 
-                              Padding(padding: EdgeInsets.only(left: 8),child:
-                              SizedBox(
-                                height: 47,
-                                child: IconButton(onPressed:(){Navigator.pop(context);}, icon:Icon(Icons.arrow_back,size: 30,),color: Colors.black87,)
-                              ),),
-                              Padding(padding:EdgeInsets.only(right: 15),
-                                child: MaterialButton(
-                                  //minWidth: MediaQuery.of(context).size.width/1.1,
-                                  color: Colors.green,
-                                  onPressed: ()async{
+    productSelectionBloc.add(AddToCartEvent(cartModel!));
+    //productSelectionBloc.add(UpdateQuantity(cartModel!));
+setState(() {
 
-                                  }, child: Text('Place order',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold)),
-                                ),
-                              )
+});
 
-                            ],
-                          ),
-                        )),
-                        Expanded(
-                            flex: 10,
-                            child:ListView.builder(
-                                physics: BouncingScrollPhysics(),
-                                itemCount: productsCartList.length,
-                                primary: false,
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemBuilder:(context,index){
-                                  return GestureDetector(
-                                      onTap: (){
+    }
 
-                                      },
-                                      child:Container(
-                                          margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
-                                          padding: EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(5)
-                                          ),
-                                          //height: 75,
-                                          child:Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Text(productsCartList[index].productName,style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.9),)
-                                                  )],
-                                              ),
-                                              Row(
-                                                  mainAxisAlignment: MainAxisAlignment.end,
-                                                  children: [
-                                                    RichText(text:
-                                                    TextSpan(text: "In stock:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
-                                                        children: <TextSpan>[
-                                                          TextSpan(text: productsCartList[index].quantity.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
-                                                        ]
-                                                    ),)
-                                                  ]
-                                              ),
-                                              Row(
-                                                  mainAxisAlignment: MainAxisAlignment.end,
-                                                  children: [
-                                                    RichText(text:
-                                                    TextSpan(text: "Price:",style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.7)),
-                                                        children: <TextSpan>[
-                                                          TextSpan(text: productsCartList[index].price.toString(),style:GoogleFonts.poppins(fontSize: 14,fontWeight: FontWeight.w400,color:Colors.black54) )
-                                                        ]
-                                                    ),)
-                                                  ]
-                                              )
-                                            ],
-                                          )
-                                      )
-                                  );
-                                })
-                          /*ListView.builder(
-                            itemCount: state.productsCartList.length,
-                            itemBuilder:(context,index){
-                              return Container(
-                                child: Column(
-                                  children: [
+  void removeFromCart(int index, BuildContext context, ProductsLoadedState state) {
 
-                                    Text(state.productsCartList[index].productName)
-                                  ],
-                                ),
-                              );
-                            })*/)
-                      ],
-                    ),
-                  ),
-                ),
-              )
-          );
-        });
+    cartModel = CartModel(
+        productId: state.productsModel.list[index].productId,
+        quantity:productQuantityList[index],
+        inStockQTY: state.productsModel.list[index].quantity,
+        productName: state.productsModel.list[index].productName,
+        comment: state.productsModel.list[index].comment,
+        price: state.productsModel.list[index].price,
+        productImage: state.productsModel.list[index].productImage,
+        categoryId: state.productsModel.list[index].categoryId,
+        createdDate: state.productsModel.list[index].createdDate,
+        updatedDate: state.productsModel.list[index].updatedDate);
+
+    productSelectionBloc.add(RemoveFromCartEvent(cartModel!));
+setState(() {
+
+});
   }
-}
+
+  void clearCartValues() {
+    productSelectionBloc.add(ClearCartEvent());
+    productsBloc.add(GetProductsListEvent(75,26));
+    for(int i=0;i<productQuantityList.length;i++){
+      if(productQuantityList[i]>0){
+        print("FLAG productQuantityList ${productQuantityList[i]}");
+        productQuantityList[i]=0;
+      }
+    }
+
+    setState(() {
+    });
+    print("FLAG productQuantityList ${productQuantityList}");
+  }
+  }
+
+

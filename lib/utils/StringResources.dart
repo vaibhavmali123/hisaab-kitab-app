@@ -14,4 +14,5 @@ class StringResources
   static String enterProductPriceField="Enter product price";
 
   static String categoryAddSuccess="Category added successfully";
+  static String orderSuccess="Order Placed Successfully";
 }

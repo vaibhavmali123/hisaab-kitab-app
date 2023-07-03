@@ -36,7 +36,7 @@ List<String> categoryList=["mobile","Cover","charger"];
 List<String> subCategoryList=["redmi","samsung"];
 TextEditingController? productNameCtrl,priceEditingController,quantityEditingController;
 final categoryBloc=CategoryBloc();
-late int selectedCategoryId,selectedSubCategoryId;
+late int selectedCategoryId,selectedSubCategoryId=0;
 final subCategoriesBloc=SubcategoriesBloc();
 var provider;
 List<ListElemet>listSubCategories=[];
@@ -395,21 +395,26 @@ getCategoryDropDown() {
               minWidth: MediaQuery.of(context).size.width/1.1,
               color: ColorResources.primaryColor,
               onPressed: ()async{
-
+                print("REQ:");
                 var request={
-                    "categoryId":selectedCategoryId,
-                    "subCategoryId":selectedSubCategoryId,
-                    "productName":productNameCtrl?.text,
-                    "updatedDate":"2333",
-                    "price":priceEditingController?.text
+                  "categoryId":selectedCategoryId,
+                  "subCategoryId":selectedSubCategoryId!=null?selectedSubCategoryId:0,
+                  "productName":productNameCtrl?.text,
+                  "updatedDate":DateTime.now().toString(),
+                  "price":priceEditingController?.text
                 };
+                if(selectedCategory!=null && productNameCtrl!.text.isNotEmpty
+                    && priceEditingController!.text.isNotEmpty && quantityEditingController!.text.isNotEmpty){
 
-                await provider.postData(baseUrl: ApiProvider.baseUrl, endApi:EndPoint.saveProduct,request:json.encode(request));
-                if(provider.isBack){
-
-                  ReusableWidgets.showToast(msg: "Product added successfully", type: true);
+                  await provider.postData(baseUrl: ApiProvider.baseUrl, endApi:EndPoint.saveProduct,request:json.encode(request));
+                  if(provider.isBack){
+                    productNameCtrl!.clear();
+                    priceEditingController!.clear();
+                    quantityEditingController!.clear();
+                    ReusableWidgets.showToast(msg: "Product added successfully", type: true);
+                  }
                 }
-
+                print("REQ: ${request.toString()}");
 
               }, child: Text('Submit',
                 style: TextStyle(

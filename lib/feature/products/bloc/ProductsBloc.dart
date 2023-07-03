@@ -19,6 +19,7 @@ class ProductsBloc extends Bloc<ProductsEvent,ProductsState>{
       }
       finally{
         emit(ProductsLoadedState(data));
-      }});
+      }
+    });
   }
 }

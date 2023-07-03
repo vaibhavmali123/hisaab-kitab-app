@@ -9,6 +9,7 @@ class LoaderNotifier extends ChangeNotifier{
 
   bool loading=false;
   bool isBack=false;
+bool isSuccess=false;
 
 Future<void>postData({required String baseUrl, required String endApi, required var request})async{
 loading=true;
@@ -21,7 +22,6 @@ ApiHandler.postApi(baseUrl:baseUrl, endApi:endApi,request:request).then((value) 
     isBack = true;
    loading = false;
     notifyListeners();
-    ReusableWidgets.showToast(msg:StringResources.categoryAddSuccess, type: true);
   }
 });}
 }
