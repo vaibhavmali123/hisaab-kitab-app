@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hisab_kitab/feature/category/CategoryRepository.dart';
 import 'package:hisab_kitab/feature/category/model/CategoriesModel.dart';
+import 'package:hisab_kitab/feature/subcategory/bloc/SubcategoriesBloc.dart';
+import 'package:hisab_kitab/feature/subcategory/bloc/SubcategoryEvent.dart';
 import '../../utils/StringResources.dart';
 import '../../utils/colors.dart';
 import 'package:hisab_kitab/utils/colors.dart';
@@ -15,7 +18,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:hisab_kitab/utils/LoadingNotifier.dart';
 import 'dart:convert';
-
+import '../subcategory/bloc/SubcateggoryState.dart';
+import '../subcategory/bloc/SubcategoriesBloc.dart';
+import '../subcategory/bloc/SubcategoryEvent.dart';
+import '../subcategory/model/SubcategoriesModel.dart';
 import '../category/bloc/CategoryBloc.dart';
 import '../category/bloc/CategoryEvent.dart';
 import '../category/bloc/CategoryState.dart';
@@ -34,42 +40,29 @@ class AddSubcategoryScreenState extends State<AddSubcategoryScreen>
   List<String> categoryList=["mobile","Cover","charger"];
   bool subCategoryField=true;
   int? selectedCategoryId;
-final categoryBloc=CategoryBloc();
+  final subCategoriesBloc=SubcategoriesBloc();
+  final categoryBloc=CategoryBloc();
 
   @override
   void initState() {
-    // TODO: implement initState
     categoryBloc.add(GetCategoryListEvent());
     super.initState();
   }
-
   @override
   Widget build(BuildContext context)
   {
-   provider=Provider.of<LoaderNotifier>(context,listen: false);
+    provider=Provider.of<LoaderNotifier>(context,listen: false);
     provider.loading=false;
   return Scaffold(
       resizeToAvoidBottomInset: false,
         body:SingleChildScrollView(
-          child:Stack(
+          child:Column(
             children: [
-              Container(
-                height: MediaQuery.of(context).size.height,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 30,),
-                    getCategoryDropDown(),
-                    SizedBox(height: 12,),
-                    getSubCategoryField(),
-                    SizedBox(height: 15,),
-                    submitButton()
-                  ],
-                ),
-              ),
-              Consumer<LoaderNotifier>(builder:(context,data,child){
-                return data.loading?ReusableWidgets.loader:Container();
-              })
+              getSubCategoryForm(),
+              SizedBox(height: 15,),
+              Container(width: MediaQuery.of(context).size.width,color: Colors.black54,height: 1,),
+              SizedBox(height: 10,),
+              selectedCategory!=null?getSubcategoryList():Container()
             ],
           ),
         )
@@ -217,7 +210,9 @@ final categoryBloc=CategoryBloc();
                               setState((){
                                 selectedCategory=value;
                               });
-                            },
+                                subCategoriesBloc.add(GetSubcategoryevent(selectedCategoryId!));
+
+                              },
                           ),
                         ),
                       ),
@@ -229,6 +224,106 @@ final categoryBloc=CategoryBloc();
               return Container(
                 child: Text("no data"),
               );
+            }
+          }),
+        ));
+
+  }
+
+  getSubCategoryForm() {
+    return Stack(
+      children: [
+        Container(
+          //height: MediaQuery.of(context).size.height,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(height: 30,),
+              getCategoryDropDown(),
+              SizedBox(height: 12,),
+              getSubCategoryField(),
+              SizedBox(height: 15,),
+              submitButton()
+            ],
+          ),
+        ),
+        Consumer<LoaderNotifier>(builder:(context,data,child){
+          return data.loading?ReusableWidgets.loader:Container();
+        })
+      ],
+    );
+  }
+
+  getSubcategoryList() {
+    return BlocProvider(
+        create: (_)=>subCategoriesBloc,
+        child:BlocListener<SubcategoriesBloc, SubcateggoryState>(
+          listener: (context, state) {
+            if (state is SubcategoryError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message!),
+                ),
+              );
+            }
+          },
+          child:BlocBuilder<SubcategoriesBloc,SubcateggoryState>(builder:(context,state){
+            if(state is SubcategoryInitial){
+              return ReusableWidgets.getShimerListVertical(context);
+            }
+            else if(state is SubcategoryLoading){
+              return ReusableWidgets.getShimerListVertical(context);
+
+            }
+            else if(state is SubcategoryLoaded){
+
+              print("fffffffffy6666666"+state.suubcategoriesModel.toJson().toString());
+              return ListView.builder(
+                  itemCount:state.suubcategoriesModel.list.length,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  physics: BouncingScrollPhysics(),
+                  //primary: false,
+                  itemBuilder: (context,index){
+                    return Padding(padding: EdgeInsets.symmetric(horizontal: 5),
+                      child: GestureDetector(
+                        onTap: (){
+
+                        },
+                        child: Container(
+                            margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
+                            padding: EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(5)
+                            ),
+                            height: 55,
+                            child:Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(state.suubcategoriesModel.list![index]!.subCategoryName.toString(),style:GoogleFonts.poppins(fontSize: 14,
+                                  fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.9),)
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                        onPressed:(){}, icon:Icon(Icons.edit,
+                                      color: ColorResources.primaryColor,size: 25,)),
+                                    IconButton(
+                                        onPressed:(){}, icon:Icon(Icons.delete,
+                                      color: Colors.red.shade500,size: 25,)),
+                                  ],
+                                )
+                              ],
+                            )
+                        ),
+                      ),
+                    );
+                  });
+            }
+            else{
+              return const Text("no data");
             }
           }),
         ));

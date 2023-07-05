@@ -6,12 +6,12 @@ class OrdersModel {
   });
   late final String statusCode;
   late final String message;
-  late final List<OrdersList> list;
+  late final List<OrderItem> list;
 
   OrdersModel.fromJson(Map<String, dynamic> json){
     statusCode = json['statusCode'];
     message = json['message'];
-    list = List.from(json['list']).map((e)=>OrdersList.fromJson(e)).toList();
+    list = List.from(json['list']).map((e)=>OrderItem.fromJson(e)).toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -23,47 +23,35 @@ class OrdersModel {
   }
 }
 
-class OrdersList {
-  OrdersList({
-    this.customerName,
-    required this.customer,
-    required this.productId,
-    required this.customerId,
-    required this.quantity,
-    required this.price,
+class OrderItem {
+  OrderItem({
+    required this.orderId,
     required this.date,
     required this.status,
+    required this.customer,
+    this.productsResponseDTO,
   });
-  late final Null customerName;
-  late final Customer customer;
-  late final int productId;
-  late final int customerId;
-  late final int quantity;
-  late final int price;
+  late final int orderId;
   late final String date;
   late final String status;
+  late final Customer customer;
+  late final ProductsResponseDTO? productsResponseDTO;
 
-  OrdersList.fromJson(Map<String, dynamic> json){
-    customerName = null;
-    customer = Customer.fromJson(json['customer']);
-    productId = json['productId'];
-    customerId = json['customerId'];
-    quantity = json['quantity'];
-    price = json['price'];
+  OrderItem.fromJson(Map<String, dynamic> json){
+    orderId = json['orderId'];
     date = json['date'];
     status = json['status'];
+    customer = Customer.fromJson(json['customer']);
+    productsResponseDTO = ProductsResponseDTO.fromJson(json['productsResponseDTO']);
   }
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
-    _data['customerName'] = customerName;
-    _data['customer'] = customer.toJson();
-    _data['productId'] = productId;
-    _data['customerId'] = customerId;
-    _data['quantity'] = quantity;
-    _data['price'] = price;
+    _data['orderId'] = orderId;
     _data['date'] = date;
     _data['status'] = status;
+    _data['customer'] = customer.toJson();
+    _data['productsResponseDTO'] = productsResponseDTO;
     return _data;
   }
 }
@@ -108,6 +96,59 @@ class HibernateLazyInitializer {
 
   Map<String, dynamic> toJson() {
     final _data = <String, dynamic>{};
+    return _data;
+  }
+}
+
+class ProductsResponseDTO {
+  ProductsResponseDTO({
+    required this.productId,
+    this.productName,
+    required this.price,
+    required this.quantity,
+    this.comment,
+    required this.productImage,
+    this.createdDate,
+    this.updatedDate,
+    required this.categoryId,
+    required this.subCategoryId,
+  });
+  late final int productId;
+  late final String? productName;
+  late final int price;
+  late final int quantity;
+  late final String? comment;
+  late final String? productImage;
+  late final String? createdDate;
+  late final String? updatedDate;
+  late final int categoryId;
+  late final int subCategoryId;
+
+  ProductsResponseDTO.fromJson(Map<String, dynamic> json){
+    productId = json['productId'];
+    productName = json['productName'];
+    price = json['price'];
+    quantity = json['quantity'];
+    comment = json['comment'];
+    productImage = json['productImage'];
+    createdDate = json['createdDate'];
+    updatedDate = json['updatedDate'];
+    categoryId = json['categoryId'];
+    subCategoryId = json['subCategoryId'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final _data = <String, dynamic>{};
+    _data['productId'] = productId;
+    _data['productName'] = productName;
+    _data['price'] = price;
+    _data['quantity'] = quantity;
+    _data['comment'] = comment;
+    _data['productImage'] = productImage;
+    _data['createdDate'] = createdDate;
+    _data['updatedDate'] = updatedDate;
+    _data['categoryId'] = categoryId;
+    _data['subCategoryId'] = subCategoryId;
     return _data;
   }
 }

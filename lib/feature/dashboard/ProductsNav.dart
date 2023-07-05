@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hisab_kitab/feature/products/bloc/ProductsBloc.dart';
+import 'package:hisab_kitab/feature/products/bloc/ProductsEvent.dart';
+import 'package:hisab_kitab/feature/products/bloc/ProductsState.dart';
 import 'package:hisab_kitab/feature/subcategory/model/SubcategoriesModel.dart';
 import 'package:hisab_kitab/utils/StringResources.dart';
 import 'package:flutter/services.dart';
@@ -31,7 +35,7 @@ class ProductsNav extends StatefulWidget{
 }
 
 class ProductsNavState extends State<ProductsNav> {
-String? selectedCategory,selectedSubCategory;
+String? selectedCategory=null,selectedSubCategory;
 List<String> categoryList=["mobile","Cover","charger"];
 List<String> subCategoryList=["redmi","samsung"];
 TextEditingController? productNameCtrl,priceEditingController,quantityEditingController;
@@ -39,7 +43,9 @@ final categoryBloc=CategoryBloc();
 late int selectedCategoryId,selectedSubCategoryId=0;
 final subCategoriesBloc=SubcategoriesBloc();
 var provider;
+final productsBloc=ProductsBloc();
 List<ListElemet>listSubCategories=[];
+
   @override
   void initState() {
     // TODO: implement initState
@@ -55,39 +61,10 @@ List<ListElemet>listSubCategories=[];
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: SafeArea(child: SingleChildScrollView(
-        child:Stack(
+        child:Column(
           children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-//          height: MediaQuery.of(context).size.height/2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(height: 8),
-
-                  Text(StringResources.addProducts,style: Theme.of(context).primaryTextTheme.headline2,),
-                  SizedBox(height: 8),
-
-                  getCategoryDropDown(),
-                  //SizedBox(height: 5),
-
-                  getSubcategoryDropdown(),
-                  //SizedBox(height: 20),
-
-                  getProductField(),
-                  //SizedBox(height: 20),
-                  getPriceField(),
-                  //SizedBox(height: 20),
-                  getQuantityField(),
-                  SizedBox(height: 12),
-                  submitButton()
-                ],
-              ),
-            ),
-            Consumer<LoaderNotifier>(builder:(context,data,child){
-              return data.loading?ReusableWidgets.loader:Container();
-            })
+            getAddProductForm(),
+          selectedCategoryId!=null? getPrpductList():Container()
           ],
         ),
       )),
@@ -95,6 +72,43 @@ List<ListElemet>listSubCategories=[];
     throw UnimplementedError();
   }
 
+getAddProductForm() {
+  return Stack(
+    children: [
+      Container(
+        width: MediaQuery.of(context).size.width,
+//          height: MediaQuery.of(context).size.height/2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(height: 8),
+
+            Text(StringResources.addProducts,style: Theme.of(context).primaryTextTheme.headline2,),
+            SizedBox(height: 8),
+
+            getCategoryDropDown(),
+            //SizedBox(height: 5),
+
+            getSubcategoryDropdown(),
+            //SizedBox(height: 20),
+
+            getProductField(),
+            //SizedBox(height: 20),
+            getPriceField(),
+            //SizedBox(height: 20),
+            getQuantityField(),
+            SizedBox(height: 12),
+            submitButton()
+          ],
+        ),
+      ),
+      Consumer<LoaderNotifier>(builder:(context,data,child){
+        return data.loading?ReusableWidgets.loader:Container();
+      })
+    ],
+  );
+}
   void initialize() {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       systemNavigationBarColor: Colors.white, // navigation bar color
@@ -192,6 +206,8 @@ getCategoryDropDown() {
                           selectedSubCategory=null;
                         });
                         subCategoriesBloc.add(GetSubcategoryevent(selectedCategoryId));
+                        productsBloc.add(GetProductsListEvent(selectedCategoryId,0));
+
                       },
                     ),
                   ),
@@ -296,6 +312,8 @@ getCategoryDropDown() {
                               setState((){
                                 selectedSubCategory=value;
                               });
+                              productsBloc.add(GetProductsListEvent(selectedCategoryId,selectedSubCategoryId));
+
                             },
                           ),
                         ),
@@ -426,4 +444,93 @@ getCategoryDropDown() {
         ],
       );
   }
+
+  getPrpductList() {
+    return BlocProvider(create: (_)=>productsBloc,
+      child: BlocListener<ProductsBloc,ProductsState>(listener: (context,state){
+        if(state is ProductsError)
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message!),
+            ),
+          );
+        }
+      },
+        child: BlocBuilder<ProductsBloc,ProductsState>(builder: (context,state){
+          if(state is ProductsInitial)
+          {
+            return ReusableWidgets.getShimerListVertical(context);
+          }
+          else if(state is ProductsLoadingState){
+            return ReusableWidgets.getShimerListVertical(context);
+          }
+          else if(state is ProductsLoadedState){
+            return Padding(padding: EdgeInsets.only(bottom:55),child:
+            state.productsModel.list.length>0?ListView.builder(
+                itemCount:state.productsModel.list.length,
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                physics: BouncingScrollPhysics(),
+                //primary: false,
+                itemBuilder: (context,index){
+                  return Padding(padding: EdgeInsets.symmetric(horizontal: 5),
+                    child: GestureDetector(
+                      onTap: (){
+
+                      },
+                      child: Container(
+                          margin: EdgeInsets.only(left: 6,right: 6,top: 5,bottom: 5),
+                          padding: EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(5)
+                          ),
+                          height: 55,
+                          child:Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(state.productsModel.list![index]!.productName.toString(),style:GoogleFonts.poppins(fontSize: 14,
+                                fontWeight: FontWeight.w500,color:Colors.black87.withOpacity(0.9),)
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                      onPressed:(){}, icon:Icon(Icons.edit,
+                                    color: ColorResources.primaryColor,size: 25,)),
+                                  IconButton(
+                                      onPressed:(){}, icon:Icon(Icons.delete,
+                                    color: Colors.red.shade500,size: 25,)),
+                                ],
+                              )
+                            ],
+                          )
+                      ),
+                    ),
+                  );
+                }):Container(
+              child: Container(
+                height: MediaQuery.of(context).size.height/2,
+                child:Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Text("No products found for selected category"),
+                    )
+                  ],
+                ),
+              ),
+            ),);
+          }
+          else{
+            return Container(
+              child: Text("no data"),
+            );
+          }
+        },),
+      ),
+    );
+  }
+
 }

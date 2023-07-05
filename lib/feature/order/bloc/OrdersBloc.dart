@@ -9,25 +9,32 @@ class OrdersBloc extends Bloc<OrderEvent,OrderState>{
 
   OrdersBloc():super(InitialOrderState()){
 
-    on<GetAllOrdersEvent>(getCustomers);
+    on<GetAllOrdersEvent>(getOrders);
 
   }
 
-  FutureOr<void> getCustomers(GetAllOrdersEvent event, Emitter<OrderState> emit) async{
+  FutureOr<void> getOrders(GetAllOrdersEvent event, Emitter<OrderState> emit) async{
   var data;
   OrdersRepository ordersRepository=OrdersRepository();
     try{
       emit(LoadingOrdersState());
      data=await ordersRepository.getAllOrders();
-      print("customers from bloc: $data");
+      print("Orders from bloc: $data");
       emit(LoadedOrdersState(data));
-      if(data==null){
-        emit(ErrorOrderState("Error to load products"));
+      print("FROM FINALLY: $data['statusCode']");
+
+      if(data==null || data['statusCode']!=200){
+        emit(ErrorOrderState("Error to load Orders"));
       }
     }
     finally{
-      emit(LoadedOrdersState(data));
+      print("FROM FINALLY: $data");
+      if(data==null || data['statusCode']!=200){
+        emit(ErrorOrderState("Error to load Orders"));
+      }
+      else{
+        emit(LoadedOrdersState(data));
+      }
     }
-
   }
 }

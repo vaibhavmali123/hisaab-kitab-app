@@ -90,8 +90,8 @@ class HomePageNavState extends State<HomePageNav> {
         Padding(padding: EdgeInsets.only(right: 12),
 
         child: Icon(Icons.document_scanner_sharp,color: Colors.black54,),)
-      ],
-      flexibleSpace: FlexibleSpaceBar(
+      ],flexibleSpace
+      : FlexibleSpaceBar(
         collapseMode: CollapseMode.parallax,
         background:
         SafeArea(
